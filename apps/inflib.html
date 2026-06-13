@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Infinite Folder</title>
+</head>
+<body>
+
+    <h2>Infinite Folder</h2>
+  <h3>Every file ever is here somewhere</h3>
+    <fieldset>
+        <legend>Path</legend>
+        <button id="back-btn">&uarr; Back</button>
+        <input type="text" id="path-input" value="/" size="60">
+        <button id="go-btn">Go</button>
+    </fieldset>
+
+    <div id="viewer" hidden>
+        <hr>
+        <h2>Contents of file.txt</h2>
+         <pre id="text-out"></pre>
+        <hr>
+    </div>
+
+    <h3>Directory Items:</h3>
+    <div style="margin-bottom: 15px;">
+        <button id="file-btn" style="width: 100%; padding: 10px; font-weight: bold; cursor: pointer;">
+            📄 file.txt
+        </button>
+    </div>
+
+    <div id="directory-listing" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 4px;"></div>
+
+    <script>
+        const alphabet = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+            'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '!', ' ',
+            '&', '(', ')', '-', '_', '+', '[', ']', '^', '='
+        ];
+        
+        const ALPHABET_LENGTH = 70n;
+        const SCALE_FACTOR = 4900n; 
+
+        let pathHistory = []; 
+        let currentBytes = new Uint8Array(0);
+
+        function runMathPipeline() {
+            if (pathHistory.length === 0) {
+                currentBytes = new Uint8Array(0);
+                return;
+            }
+
+            let value = 0n;
+            for (let i = 0; i < pathHistory.length; i++) {
+                let digit = BigInt(pathHistory[i]) + 1n;
+                value = (value * SCALE_FACTOR) + digit;
+            }
+
+            let byteList = [];
+            while (value > 0n) {
+                byteList.push(Number(value & 0xFFn));
+                value >>= 8n;
+            }
+            currentBytes = new Uint8Array(byteList);
+        }
+
+        function indexToName(idx) {
+            const b = Number(ALPHABET_LENGTH);
+            return alphabet[Math.floor(idx / b)] + alphabet[idx % b];
+        }
+
+        function nameToIndex(name) {
+            if (name.length !== 2) return -1;
+            let i0 = alphabet.indexOf(name[0]);
+            let i1 = alphabet.indexOf(name[1]);
+            if (i0 === -1 || i1 === -1) return -1;
+            return (i0 * Number(ALPHABET_LENGTH)) + i1;
+        }
+
+        const pathInput = document.getElementById('path-input');
+        const backBtn = document.getElementById('back-btn');
+        const viewer = document.getElementById('viewer');
+        const listing = document.getElementById('directory-listing');
+
+        function updateDisplay() {
+            viewer.hidden = true;
+            
+            let currentPathStr = "/";
+            if (pathHistory.length > 0) {
+                currentPathStr += pathHistory.map(indexToName).join("/") + "/";
+            }
+            pathInput.value = currentPathStr;
+            backBtn.disabled = (pathHistory.length === 0);
+
+            listing.innerHTML = "";
+            const frag = document.createDocumentFragment();
+            
+            for (let i = 0; i < 4900; i++) {
+                let folderName = indexToName(i);
+                let btn = document.createElement('button');
+                btn.textContent = "📁 " + folderName;
+                btn.onclick = () => parseAndGo(currentPathStr + folderName);
+                frag.appendChild(btn);
+            }
+            listing.appendChild(frag);
+        }
+
+        document.getElementById('file-btn').onclick = () => {
+            if (currentBytes.length === 0) {
+                document.getElementById('text-out').textContent = "";
+            } else {
+                let bytesArray = Array.from(currentBytes);
+                document.getElementById('text-out').textContent = bytesArray.map(b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : '.').join('');
+            }
+            viewer.hidden = false;
+        };
+
+        function parseAndGo(targetPathStr) {
+            let raw = targetPathStr.trim();
+            if (raw === "/" || raw === "") {
+                pathHistory = [];
+                runMathPipeline();
+                updateDisplay();
+                return true;
+            }
+            let segments = raw.split('/').filter(s => s.length > 0);
+            let targetHistory = [];
+            for (let seg of segments) {
+                let idx = nameToIndex(seg);
+                if (idx === -1) {
+                    alert("Invalid path sequence: " + seg);
+                    return false;
+                }
+                targetHistory.push(idx);
+            }
+            pathHistory = targetHistory;
+            runMathPipeline();
+            updateDisplay();
+            return true;
+        }
+
+        backBtn.onclick = () => {
+            if (pathHistory.length > 0) {
+                pathHistory.pop();
+                runMathPipeline();
+                updateDisplay();
+            }
+        };
+
+        document.getElementById('go-btn').onclick = () => { parseAndGo(pathInput.value); };
+        
+        pathInput.onkeydown = (e) => { 
+            if (e.key === 'Enter') {
+                parseAndGo(pathInput.value);
+            }
+        };
+
+        updateDisplay();
+    </script>
+</body>
+</html>

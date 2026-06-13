@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            background-image: url("./sigma.png");
+            background-size: auto;
+            margin: 0px;
+        }
+
+        .img {
+            object-fit: cover;
+            width: 64px;
+            height: 64px;
+            border-radius: 10%;
+        }
+
+        .window {
+            display: flex;
+            border: solid;
+            width: 50%;
+            padding: 0px;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            margin: 0px;
+            background-color: white;
+            flex-direction: column;
+        }
+
+        #topbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: invert(70%);
+            color: white;
+            width: 100%;
+            height: 5%;
+            margin: 0px;
+            padding: 5px;
+            box-sizing: border-box;
+            z-index: 9999;
+            position: relative;
+
+        }
+
+        .handle {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 100%;
+            height: 5%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .window-content {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+        }
+
+        .content-button {
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            background-color: red;
+            text-align: center;
+            padding: 0px;
+            margin: 5px;
+        }
+
+        .app-icon {
+            border-radius: 10%;
+        }
+
+        .app {
+            border-radius: 10%;
+            padding: 10px;
+            width: 64px;
+            height: 64px;
+            transition: background-color ease-in-out 0.1s;
+        }
+
+        .selected {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .window-content {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: grey;
+            box-sizing: border-box;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .sidebar li {
+            background-color: white;
+            border: 2px solid black;
+            list-style-type: none;
+            margin: 0px;
+
+            padding: 8px 12px;
+            cursor: pointer;
+            text-align: center;
+
+            width: 100%;
+            box-sizing: border-box;
+            height: 10%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topbar">
+        <p>sigmaOS</p>
+        <p id="time">insert time</p>
+    </div>
+    <div id="desktop">
+        <div id="desktopApps" style="padding-top: 16px; padding-left: 16px;">
+            <div id="read-app" class="app" onclick="handleTap(readApp, readWindow)">
+                <img src="./apps/read.png" class="app-icon">
+            </div>
+            <div id="welcome-app" onclick="handleTap(welcomeApp, welcomeWindow)" class="app selected">
+                <img src="./apps/hi.png" class="app-icon">
+            </div>
+            <div id="lib-app" onclick="handleTap(libApp, libWindow)" class="app">
+                <img src="./apps/inflib.png" class="app-icon">
+            </div>
+            <div id="game-app" onclick="handleTap(gameApp, gameWindow)" class="app">
+                <img src="./apps/game.png" class="app-icon">
+            </div>
+        </div>
+        <div class="window" id="welcome" style="top: 50%; left: 50%; ">
+            <div class="handle" id="welcomeheader">
+                <div></div>
+                <div style="display: flex; ">
+                    <p style="cursor: pointer" onclick="closeWindow(welcomeWindow, welcomeApp)" class="content-button">
+                    </p>
+                </div>
+            </div>
+            <div class="window-content" style="display: block;">
+                <img class="img" src="./base64.png">
+                <h1>Welcome to my OS!</h1>
+                <h2>sigmaOS</h2>
+                <p>not satire btw</p>
+            </div>
+        </div>
+
+        <div class="window" id="read" style="display: none; top: 60%; left: 50%;">
+            <div class="handle" id="readheader">
+                <div></div>
+                <div style="display: flex;">
+                    <p style="cursor: pointer" onclick="closeWindow(readWindow, readApp)" class="content-button"></p>
+                </div>
+            </div>
+
+            <div class="window-content">
+                <div class="sidebar">
+                    <ul>
+                        <li onclick="openBook(book1)">book 1</li>
+                        <li onclick="openBook(book2)">book 2</li>
+                    </ul>
+                </div>
+
+                <div class="main-content">
+                    <h1>read :3</h1>
+
+                    <div id="book1-content">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dignissim id magna nec
+                            volutpat.
+                            Aenean tempus justo at sagittis dapibus. Praesent arcu sem, vehicula in dictum nec,
+                            hendrerit
+                            consequat urna. Duis ac lorem lacus. Cras nisl augue, malesuada quis tempor quis, varius
+                            quis
+                            velit. Suspendisse malesuada, turpis ac mollis dapibus, turpis leo pharetra urna, eu
+                            interdum
+                            est tortor bibendum risus. Ut ut sem turpis.
+                        </p>
+                        <p>Quisque nec felis eros. Pellentesque habitant morbi tristique senectus et netus et malesuada
+                            fames ac turpis egestas. Morbi a ipsum laoreet, eleifend arcu a, faucibus libero. Nullam in
+                            eros
+                            vehicula, aliquet diam quis, posuere augue. Quisque tempus pellentesque quam, in efficitur
+                            nulla
+                            rutrum et. Proin gravida dui sit amet ante fringilla volutpat. Nulla posuere nulla id mi
+                            accumsan, pharetra fringilla lorem euismod. Interdum et malesuada fames ac ante ipsum primis
+                            in
+                            faucibus. Phasellus neque ante, commodo sed blandit nec, maximus a nisl. Pellentesque
+                            interdum,
+                            nunc eget sollicitudin cursus, lectus ante pharetra eros, ut malesuada justo urna non leo.
+                            Curabitur risus velit, tincidunt vel nibh sit amet, varius mattis massa. Morbi eu nunc eu mi
+                            consequat pellentesque. Cras posuere tortor id nibh eleifend dictum.
+                        </p>
+                    </div>
+                    <div id="book2-content" style="display: none;">
+                        <p>imagine ai generated book here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="window" id="lib" style="display: none; top: 50%; left: 50%; width: 75%; height: 500px;">
+            <div class="handle" id="libheader">
+                <div></div>
+                <div style="display: flex;">
+                    <p style="cursor: pointer" onclick="closeWindow(libWindow, libApp)" class="content-button"></p>
+                </div>
+            </div>
+
+            <div class="window-content" style="padding: 0px; height: calc(100% - 30px); margin: 0px;">
+                <iframe style="margin: 0px; width: 100%; height: 100%; border: none;" src="./apps/inflib.html"></iframe>
+            </div>
+        </div>
+        <div class="window" id="game" style="display: none; top: 50%; left: 50%; width: 26%; height: 375px;">
+            <div class="handle" id="gameheader" style="height: 30px; width: 100%;">
+                <div></div>
+                <div style="display: flex;">
+                    <p style="cursor: pointer" onclick="closeWindow(gameWindow, gameApp)" class="content-button"></p>
+                </div>
+            </div>
+
+            <div class="window-content" style="padding: 0px; margin: 0px; height: calc(100% - 30px); width: 100%;">
+                <iframe style="margin: 0px; width: 100%; height: 100%; border: none;" src="./apps/game.html"></iframe>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const timeElement = document.getElementById("time");
+
+        function updateTime() {
+            var currentTime = new Date().toLocaleString();
+            timeElement.innerHTML = currentTime;
+
+        }
+        setInterval(updateTime, 1000);
+
+
+        function dragElement(element) {
+            var initialX = 0;
+            var initialY = 0;
+            var currentX = 0;
+            var currentY = 0;
+
+            // Track the cursor offset relative to the window's position
+            var offsetX = 0;
+            var offsetY = 0;
+
+            const header = document.getElementById(element.id + "header");
+            if (header) {
+                header.onmousedown = startDragging;
+            } else {
+                element.onmousedown = startDragging;
+            }
+
+            function startDragging(e) {
+                e = e || window.event;
+                e.preventDefault();
+
+                element.style.zIndex = getTopIndex();
+
+                offsetX = e.clientX - element.offsetLeft;
+                offsetY = e.clientY - element.offsetTop;
+
+                document.onmouseup = stopDragging;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+
+                let nextTop = e.clientY - offsetY;
+                let nextLeft = e.clientX - offsetX;
+
+                const topbarHeight = document.getElementById("topbar").offsetHeight;
+                let windowTopEdge = nextTop - (element.offsetHeight / 2);
+
+                if (windowTopEdge < topbarHeight) {
+                    nextTop = topbarHeight + (element.offsetHeight / 2);
+                }
+
+                element.style.top = nextTop + "px";
+                element.style.left = nextLeft + "px";
+            }
+
+            function stopDragging() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function closeWindow(w, app = null) {
+            w.style.display = "none";
+            if (app) {
+                app.classList.remove("selected");
+            }
+        }
+
+        function openWindow(w, app = null) {
+            w.style.display = "flex";
+            w.style.zIndex = getTopIndex();
+            if (app) {
+                app.classList.add("selected");
+            }
+        }
+
+
+
+        const welcomeWindow = document.getElementById("welcome");
+        const welcomeApp = document.getElementById("welcome-app");
+        const readWindow = document.getElementById("read");
+        const readApp = document.getElementById("read-app");
+        const libWindow = document.getElementById("lib");
+        const libApp = document.getElementById("lib-app");
+        const gameWindow = document.getElementById("game");
+        const gameApp = document.getElementById("game-app");
+
+
+
+        dragElement(welcomeWindow);
+        dragElement(readWindow);
+        dragElement(libWindow);
+        dragElement(gameWindow);
+
+
+        var selectedIcon = null;
+
+        function selectIcon(element) {
+            element.classList.add("selected");
+            selectedIcon = element
+        }
+
+        function deselectIcon(element) {
+            element.classList.remove("selected");
+            selectedIcon = null;
+        }
+
+        function handleTap(element, window) {
+            if (element.classList.contains("selected")) {
+                deselectIcon(element);
+                closeWindow(window);
+
+            } else {
+                selectIcon(element);
+                openWindow(window);
+            }
+        }
+
+        var maxIndex = 1;
+        function getTopIndex() {
+            return maxIndex++;
+        }
+
+        const book1 = document.getElementById("book1-content");
+        const book2 = document.getElementById("book2-content");
+
+        var selectedBook = book1;
+
+        function openBook(book) {
+            selectedBook.style.display = "none";
+            book.style.display = "block";
+            selectedBook = book;
+        }
+
+    </script>
+</body>
+
+</html>
