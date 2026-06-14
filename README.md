@@ -23,10 +23,10 @@
 ### Try
 **[Here ya go <3](https://datadecay.github.io/stardance-webos/)**
 
+### Other Docs
+**[Backend](https://github.com/datadecay/sigmaOS-backend)**
+
 ### TODO
-What I want to do with the webOS2
- - backend
- - support for hackclub oauth
- - roaming accounts
+What I want to do
  - window resiszing and maximizing
  - more!
