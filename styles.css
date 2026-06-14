@@ -163,6 +163,7 @@ body {
     transform: translate(-50%, -50%);
     background-color: var(--secondary);
     color: var(--text-secondary);
+    transform-origin: top center;
 }
 
 .handle {
@@ -184,7 +185,7 @@ body {
     text-align: center;
     padding: 0px;
     margin: 5px;
-    border: none;
+    border: 1px solid var(--text-primary);
     cursor: pointer;
 }
 
@@ -230,6 +231,30 @@ body {
     overflow-y: auto;
 }
 
+.window.maximized {
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.window.minimized {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.window.minimized .handle {
+    border: 2px solid var(--primary)
+}
+
+.window.minimized .window-content {
+    display: none !important;
+}
+
 .loading-screen {
     position: fixed;
     top: 0;
@@ -267,6 +292,46 @@ body {
     -webkit-mask-position: center;
     mask-position: center;
     transition: background-color 0.5s ease;
+}
+
+#runbar {
+    display: none !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    position: absolute !important;
+    top: 100%;
+    left: 0;
+    width: 200px !important;
+    background-color: var(--bg-dropdown) !important;
+    border: 1px solid var(--primary) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 10000;
+}
+
+.dropdown:hover #runbar {
+    display: flex !important;
+}
+
+#runbar a {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 16px !important;
+    color: var(--text-dropdown) !important;
+    text-decoration: none !important;
+    text-align: left !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 20%, transparent) !important;
+    white-space: nowrap !important;
+}
+
+#runbar a:hover {
+    background-color: var(--bg-dropdown-hover) !important;
+    text-decoration: none !important;
+}
+
+#runbar a:last-child {
+    border-bottom: none !important;
 }
 
 form {
@@ -334,42 +399,10 @@ input[type=color] {
     cursor: pointer;
 }
 
-#runbar {
-    display: none !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    position: absolute !important;
-    top: 100%;
-    left: 0;
-    width: 200px !important;
-    background-color: var(--bg-dropdown) !important;
-    border: 1px solid var(--primary) !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    z-index: 10000;
-}
-
-.dropdown:hover #runbar {
-    display: flex !important;
-}
-
-#runbar a {
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 12px 16px !important;
-    color: var(--text-dropdown) !important;
-    text-decoration: none !important;
-    text-align: left !important;
-    border-bottom: 1px solid color-mix(in srgb, var(--primary) 20%, transparent) !important;
-    white-space: nowrap !important;
-}
-
-#runbar a:hover {
-    background-color: var(--bg-dropdown-hover) !important;
-    text-decoration: none !important;
-}
-
-#runbar a:last-child {
-    border-bottom: none !important;
+button {
+    padding: 10px;
+    background-color: var(--primary);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
 }

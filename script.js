@@ -77,6 +77,17 @@ function openWindow(w, app = null) {
     if (app) app.classList.add("selected");
 }
 
+function handleMaximize(w) {
+    w.classList.remove("minimized");
+    w.classList.toggle("maximized");
+}
+
+function handleMinimize(w) {
+        w.classList.remove("maximized");
+        w.classList.toggle("minimized");
+}
+
+
 function handleTap(element, windowEl) {
     if (element.classList.contains("selected")) {
         element.classList.remove("selected");
@@ -195,7 +206,15 @@ function installApp(appPackage, base = false) {
             <div></div>
             <div>${appName}</div>
             <div style="display: flex;">
-                <p style="cursor: pointer" class="content-button" id="${appId}-close-btn"></p>
+                <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
+                        id="${appId}-close-btn">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
+                        onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
             </div>
         </div>
         <div class="window-content" >
@@ -301,6 +320,8 @@ window.installedApps = installedApps;
 window.instalFromWeb = instalFromWeb;
 window.installApp = installApp;
 window.load = load;
+window.handleMaximize = handleMaximize;
+window.handleMinimize = handleMinimize;
 
 
 
