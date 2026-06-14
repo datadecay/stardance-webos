@@ -3,7 +3,7 @@ name: Deploy 2.x.x
 on:
   push:
     branches:
-      - sigmaos2
+      - webos2
 
 permissions:
   contents: write
