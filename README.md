@@ -8,6 +8,11 @@
 - **App Store** Not just installable apps, but an app store, contains a grand total of 1 app
 - **Customizable:** You can change the primary color, secondary color, and wallpaper and the entire color scheme adjusts! More options coming soon.
 
+### Accounts
+The main purpose of accounts is to have roaming data. Your themes and apps persist across browsers if you log in.
+Logging in is optional, but your data will only save in your browser.
+Currently, you can only login with HackClub.
+
 ### Apps
  - Preinstalled
    - **Hi!**: what it sounds like
@@ -21,7 +26,7 @@
    - **Read :3**: Not much of a book
 
 ### Try
-**[Here ya go <3](https://datadecay.github.io/stardance-webos/)**
+**[Here ya go <3](https://datadecay.github.io/stardance-webos/sigmaos2)**
 
 ### Other Docs
 **[Backend](https://github.com/datadecay/sigmaOS-backend)**
