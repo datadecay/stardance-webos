@@ -1,5 +1,7 @@
 window.storageLib = await import("./lib/storage.js");
 window.theme = await import("./lib/theme.js");
+window.messaging = await import("./lib/messaging.js");
+window.popup = await import("./lib/popup.js");
 
 const timeElement = document.getElementById("time");
 
@@ -201,9 +203,23 @@ function installApp(appPackage, base = false) {
     `;
     desktop.appendChild(appWindow);
     if (jsContent && jsContent.trim() !== "") {
-        const runtimeScript = document.createElement("script");
-        runtimeScript.textContent = jsContent;
-        document.body.appendChild(runtimeScript);
+        try {
+            const runtimeScript = document.createElement("script");
+
+            runtimeScript.textContent = `
+            (function(appId, currentWindow) {
+                try {
+                    ${jsContent}
+                } catch (err) {
+                    console.error("Runtime error in app context:", err);
+                }
+            })("${appId}", document.getElementById("${appId}"));
+        `;
+
+            document.body.appendChild(runtimeScript);
+        } catch (scriptError) {
+            console.error(`Installation syntax error in app "${appName}":`, scriptError);
+        }
     }
     dragElement(appWindow);
     dragElement(appShortcut);
@@ -247,7 +263,7 @@ async function instalFromWeb(appUrl, base = false) {
 }
 
 function installBase() {
-    const baseApps = ["./apps/guide.zip", "./apps/game.zip", "./apps/conf.zip", "./apps/appstore.zip"];
+    const baseApps = ["./apps/guide.zip", "./apps/game.zip", "./apps/conf.zip", "./apps/appstore.zip", "./apps/term.zip"];
     baseApps.forEach(url => instalFromWeb(url, true));
 }
 

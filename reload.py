@@ -1,6 +1,6 @@
 import os
 
-apps = ["read", "guide", "game", "conf", "appstore"]
+apps = ["read", "guide", "game", "conf", "appstore", "term"]
 
 for app in apps:
     os.system(f"rm -f apps/{app}.zip")

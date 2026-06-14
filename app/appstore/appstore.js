@@ -1,10 +1,12 @@
+const messaging = window.messaging;
+
 window.appstoreApp = {
     async loadStorefront() {
         const appListElement = document.getElementById("app-list");
         if (!appListElement) return;
 
         appListElement.innerHTML = "<li>Loading apps...</li>";
-        
+
         let apps = [];
 
         try {
@@ -12,7 +14,7 @@ window.appstoreApp = {
             if (!response.ok) {
                 throw new Error(`Error: ${response.status} ${response.statusText}`);
             }
-            
+
             const data = await response.json();
             apps = data.apps || [];
         } catch (error) {
@@ -30,34 +32,45 @@ window.appstoreApp = {
 
         apps.forEach(app => {
             const listItem = document.createElement("li");
-            
+
             listItem.textContent = `${app.name || 'Unknown App'} (v${app.version || '1.0.0'}) `;
 
-            const installButton = document.createElement("button");
-            installButton.textContent = "Install";
-            installButton.style.marginLeft = "10px";
-            
-            installButton.addEventListener("click", async () => {
-                if (typeof window.instalFromWeb === "function") {
-                    installButton.disabled = true;
-                    installButton.textContent = "Installing...";
-                    
-                    try {
-                        await window.instalFromWeb(app.url);
-                        installButton.textContent = "Installed";
-                    } catch (err) {
-                        console.error(`Installation failed for ${app.name}:`, err);
-                        installButton.disabled = false;
-                        installButton.textContent = "Retry";
-                    }
-                } else {
-                }
-            });
+            if (window.installedApps && window.installedApps[app.id]) {
+                const installedButton = document.createElement("button");
+                installedButton.textContent = "Installed";
+                installedButton.disabled = true;
+                listItem.appendChild(installedButton);
+            } else {
+                const installButton = document.createElement("button");
+                installButton.textContent = "Install";
+                installButton.style.marginLeft = "10px";
+                installButton.addEventListener("click", async () => {
+                    if (typeof window.instalFromWeb === "function") {
+                        installButton.disabled = true;
+                        installButton.textContent = "Installing...";
 
-            listItem.appendChild(installButton);
+                        try {
+                            await window.instalFromWeb(app.url);
+                            installButton.textContent = "Installed";
+                            messaging.publish("applistUpdate", {});
+                        } catch (err) {
+                            console.error(`Installation failed for ${app.name}:`, err);
+                            installButton.disabled = false;
+                            installButton.textContent = "Retry";
+                        }
+                    }
+                });
+
+                listItem.appendChild(installButton);
+            }
             appListElement.appendChild(listItem);
         });
     }
 };
 
 window.appstoreApp.loadStorefront();
+messaging.subscribe("applistUpdate", () => {
+    if (typeof window.appstoreApp.loadStorefront === "function") {
+        window.appstoreApp.loadStorefront();
+    }
+});

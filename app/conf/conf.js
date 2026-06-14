@@ -1,5 +1,8 @@
 const storage = window.storageLib; 
+const storageInstance = storage?.storageLib || storage; 
 const applyTheme = window.apply || (window.theme && window.theme.apply);
+const messaging = window.messaging;
+const popup = window.popup;
 
 async function saveInputsFromContainer(containerSelector) {
     const inputs = document.querySelectorAll(`${containerSelector} input`);
@@ -26,8 +29,8 @@ async function saveInputsFromContainer(containerSelector) {
             value = input.value; 
         }
 
-        if (storage && storage.storageLib && typeof storage.storageLib.saveSetting === 'function') {
-            savePromises.push(storage.storageLib.saveSetting({ id: input.id, value: value }));
+        if (storageInstance && typeof storageInstance.saveSetting === 'function') {
+            savePromises.push(storageInstance.saveSetting({ id: input.id, value: value }));
         }
     }
 
@@ -50,8 +53,8 @@ async function loadSettingsIntoContainer(containerSelector) {
         if (input.type === 'submit' || !input.id) continue;
 
         try {
-            if (storage && storage.storageLib && typeof storage.storageLib.getSetting === 'function') {
-                const setting = await storage.storageLib.getSetting(input.id);
+            if (storageInstance && typeof storageInstance.getSetting === 'function') {
+                const setting = await storageInstance.getSetting(input.id);
                 if (setting && setting.value !== undefined) {
                     if (input.type === 'checkbox') {
                         input.checked = setting.value;
@@ -81,57 +84,102 @@ const confApp = {
         this.selectedConfigId = configId;
     },
 
-    async uninstallApp(appId) {
-        if (!confirm("Are you sure you want to uninstall this app?")) return;
+async uninstallApp(appId) {
+    popup.popup(
+        `Are you sure you want to uninstall ${appId}?`, 
+        "Confirm Uninstall", 
+        {
+            "Yes": async () => {
+                const appInfo = window.installedApps ? window.installedApps[appId] : null;
+                if (appInfo && typeof window.closeWindow === 'function') {
+                    window.closeWindow(appInfo.windowEl, appInfo.shortcutEl);
+                    delete window.installedApps[appId];
+                }
 
-        const appInfo = window.installedApps[appId];
-        if (appInfo) {
-            closeWindow(appInfo.windowEl, appInfo.shortcutEl);
-            delete window.installedApps[appId];
-        }
-
-        if (storage && storage.storageLib && typeof storage.storageLib.deleteApp === 'function') {
-            try {
-                await storage.storageLib.deleteApp(appId);
-                console.log(`App ${appId} uninstalled successfully.`);
-                document.getElementById(`${appId}-app`)?.remove();
-                loadAppList(); 
-            } catch (error) {
-                console.error(`Failed to uninstall app ${appId}:`, error);
+                if (storageInstance && typeof storageInstance.deleteApp === 'function') {
+                    try {
+                        await storageInstance.deleteApp(appId);
+                        console.log(`App ${appId} uninstalled successfully.`);
+                        
+                        document.getElementById(`${appId}-app`)?.remove();
+                        
+                        if (typeof loadAppList === 'function') {
+                            loadAppList(); 
+                        }
+                        
+                        if (messaging && typeof messaging.publish === 'function') {
+                            messaging.publish("applistUpdate", {});
+                        }
+                    } catch (error) {
+                        console.error(`Failed to uninstall app ${appId}:`, error);
+                    }
+                }
+            },
+            "No": () => {
+                console.log("Uninstall aborted safely.");
             }
         }
-    }
-
+    ); 
+}
 };
 
 window.confApp = confApp; 
 
 function loadAppList() {
-    if (!storage || !storage.storageLib || typeof storage.storageLib.getAllApps !== 'function') return;
+    if (!storageInstance || typeof storageInstance.getAllApps !== 'function') return;
 
-    storage.storageLib.getAllApps().then(apps => {
-        const systemAppsList = document.getElementById("installed-system-apps-list");
+    storageInstance.getAllApps().then(apps => {
         const userAppsList = document.getElementById("installed-user-apps-list");
+        if (!userAppsList) return;
+
+        userAppsList.innerHTML = "";
 
         apps.forEach(app => {
-            const listItem = document.createElement("li");
-            listItem.innerHTML = `${app.config.name} (v${app.config.version}) - ${!app.system && "<button onclick='window.confApp.uninstallApp(\"" + app.id + "\")'>Uninstall</button>"}`;
+            if (app.system) return; 
 
-            if (app.system) {
-                systemAppsList.appendChild(listItem);
-            } else {
-                userAppsList.appendChild(listItem);
-            }
+            const listItem = document.createElement("li");
+            const appName = app.config?.name || app.name || 'Unknown App';
+            const appVersion = app.config?.version || '1.0.0';
+
+            listItem.textContent = `${appName} (v${appVersion}) `;
+
+            const uninstallBtn = document.createElement("button");
+            uninstallBtn.textContent = "Uninstall";
+            uninstallBtn.style.marginLeft = "10px";
+            uninstallBtn.addEventListener("click", () => {
+                window.confApp.uninstallApp(app.id);
+            });
+
+            listItem.appendChild(uninstallBtn);
+            userAppsList.appendChild(listItem);
         });
     }).catch(error => {
         console.error("Failed to load installed apps:", error);
     });
 }
 
+async function loadInfoList() {
+    const info = await fetch('./lib/info.json').then(res => res.json());
+    const infoList = document.getElementById("info-list");
+    if (!infoList) return;
+    
+    infoList.innerHTML = `
+    <li>${info.brand}@${info.version} build ${info.build}</li>
+    <li>for ${info.track}</li>
+    `;
+}
+
+
 (async () => {
     await loadSettingsIntoContainer("#config1-content");
     await loadSettingsIntoContainer("#config2-content");
     loadAppList();
+    loadInfoList();
+    
+    if (messaging && typeof messaging.subscribe === 'function') {
+        messaging.subscribe("applistUpdate", () => loadAppList());
+    }
+
     if (typeof applyTheme === 'function') {
         applyTheme(); 
     }
