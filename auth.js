@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     code: params.get('code'),
-                    code_verifier: codeVerifier
+                    code_verifier: codeVerifier,
+                    redirect_uri: REDIRECT_URI
                 })
             });
 
