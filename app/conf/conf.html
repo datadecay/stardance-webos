@@ -1,0 +1,38 @@
+<div class="sidebar">
+    <ul>
+        <li onclick="window.confApp.openConfig('config1-content')">General</li>
+        <li onclick="window.confApp.openConfig('config2-content')">Personalization</li>
+        <li onclick="window.confApp.openConfig('config3-content')">Installed Apps</li>
+
+    </ul>
+</div>
+
+<div class="main-content">
+    <h1>Config</h1>
+
+    <div id="config1-content">
+        <form>
+            <label>WIP coming soon</label>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+    <div id="config2-content" style="display: none;">
+        <form>
+            <input type="color" id="theme-color">
+            <label for="theme-color">Theme Color</label>
+            <br>
+            <input type="color" id="theme-color2">
+            <label for="theme-color2">Secondary Theme Color</label>
+            <br>
+            <input type="file" accept="image/*" id="theme-image">
+            <label for="theme-image">Wallpaper</label>
+            <br>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+    <div id="config3-content" style="display: none;">
+        <h2>Installed Apps</h2>
+        <ul id="installed-user-apps-list">
+        </ul>
+    </div>
+</div>
