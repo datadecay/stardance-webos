@@ -8,6 +8,8 @@
 </head>
 
 <body>
+    <!--<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>-->
     <div class="loading-screen"><div class="loading-logo"></div></div>
     <div id="topbar">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -17,6 +19,10 @@
                 <div class="dropdown-content" id="runbar">
                 </div>
             </li>
+        </div>
+        <div>
+            <span class="username">Guest</span>
+            <button id="logout-button">Log out</button>
         </div>
         <p id="time">time</p>
     </div>
@@ -32,7 +38,7 @@
         <div class="window" id="welcome" style="top: 50%; left: 50%; ">
             <div class="handle" id="welcomeheader">
                 <div></div>
-                <div>welcome</div>
+                <div>Welcome</div>
                 <div style="display: flex; ">
                     <p style="cursor: pointer"
                         onclick="window.closeWindow(window.installedApps['welcome'].windowEl, window.installedApps['welcome'].shortcutEl)"
@@ -42,7 +48,7 @@
             </div>
             <div class="window-content" style="display: block; padding: 10px; text-align: center;">
                 <img class="img" src="./base64.png">
-                <h1>Welcome to sigmaOS</h1>
+                <h1>Welcome to sigmaOS, <span class="username">Guest</span></h1>
                 <h2>sigmaOS</h2>
                 <p>best name in existance</p>
             </div>
@@ -50,7 +56,7 @@
         <div class="window" id="dev" style="top: 50%; left: 50%; display: none;">
             <div class="handle" id="devheader">
                 <div></div>
-                <div>dev</div>
+                <div>Dev</div>
                 <div style="display: flex; ">
                     <p style="cursor: pointer"
                         onclick="window.closeWindow(window.installedApps['dev'].windowEl, window.installedApps['dev'].shortcutEl)"
@@ -67,6 +73,8 @@
     </div>
 
     <script src="./script.js" type="module"></script>
+        <script src="./desktop.js" type="module"></script>
+
 </body>
 
 </html>

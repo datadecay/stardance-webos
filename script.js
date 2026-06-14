@@ -2,6 +2,7 @@ window.storageLib = await import("./lib/storage.js");
 window.theme = await import("./lib/theme.js");
 window.messaging = await import("./lib/messaging.js");
 window.popup = await import("./lib/popup.js");
+window.desktop = await import("./desktop.js");
 
 const timeElement = document.getElementById("time");
 
@@ -275,18 +276,9 @@ function installSavedApps() {
     });
 }
 
-window.closeWindow = closeWindow;
-window.openWindow = openWindow;
-window.handleTap = handleTap;
-window.dragElement = dragElement;
-window.installedApps = installedApps;
-window.instalFromWeb = instalFromWeb;
-window.installApp = installApp;
-
 async function load() {
     try {
-        await window.theme.apply();
-
+        await window.desktop.initializeDesktop();
         await installBase();
         await installSavedApps();
 
@@ -300,5 +292,16 @@ async function load() {
         }
     }
 }
+
+window.closeWindow = closeWindow;
+window.openWindow = openWindow;
+window.handleTap = handleTap;
+window.dragElement = dragElement;
+window.installedApps = installedApps;
+window.instalFromWeb = instalFromWeb;
+window.installApp = installApp;
+window.load = load;
+
+
 
 load();

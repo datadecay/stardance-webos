@@ -4,7 +4,7 @@
             "id": "read",
             "name": "Read",
             "version": "1.0.0",
-            "url": "./apps/read.zip",
+            "url": "./appstore/read.zip",
             "description": "Read NOTHING"
         }
     ]
