@@ -1,6 +1,6 @@
 {
-    "version": "1.1.2",
-    "build": "3",
-    "track": "webOS1",
+    "version": "2.0.0",
+    "build": "0",
+    "track": "webOS2",
     "brand": "sigmaOS"
 }
