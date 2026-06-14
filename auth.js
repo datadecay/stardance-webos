@@ -2,7 +2,7 @@
 // im not so good with oauth
 
 const CLIENT_ID = '119dd61812e3d0a0c5c36112de508783';
-const REDIRECT_URI = 'https://friendly-barnacle-r4445jp9gw4ghpwg4-8000.app.github.dev/authenticate.html';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
 
 const BACKEND_URL = 'https://slunga.westus2.cloudapp.azure.com:8095'; 
 
