@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link href="./styles.css" rel="stylesheet">
+    <script src="./lib/jszip.js"></script>
+</head>
+
+<body>
+    <div class="loading-screen"><div class="loading-logo"></div></div>
+    <div id="topbar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <p>sigmaOS</p>
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Run</a>
+                <div class="dropdown-content" id="runbar">
+                </div>
+            </li>
+        </div>
+        <p id="time">time</p>
+    </div>
+    <div id="desktop">
+        <div id="desktopApps" style="padding-top: 16px; padding-left: 16px;">
+            <div id="welcome-app" onclick="window.handleTap(window.welcomeApp, window.welcomeWindow)" class="app selected">
+                <img src="./apps/hi.png" class="app-icon">
+            </div>
+            <div id="dev-app" onclick="window.handleTap(window.devApp, window.devWindow)" class="app">
+                <img src="./apps/dev.png" class="app-icon">
+            </div>
+        </div>
+        <div class="window" id="welcome" style="top: 50%; left: 50%; ">
+            <div class="handle" id="welcomeheader">
+                <div></div>
+                <div>welcome</div>
+                <div style="display: flex; ">
+                    <p style="cursor: pointer"
+                        onclick="window.closeWindow(window.installedApps['welcome'].windowEl, window.installedApps['welcome'].shortcutEl)"
+                        class="content-button">
+                    </p>
+                </div>
+            </div>
+            <div class="window-content" style="display: block; padding: 10px; text-align: center;">
+                <img class="img" src="./base64.png">
+                <h1>Welcome to sigmaOS</h1>
+                <h2>sigmaOS</h2>
+                <p>best name in existance</p>
+            </div>
+        </div>
+        <div class="window" id="dev" style="top: 50%; left: 50%; display: none;">
+            <div class="handle" id="devheader">
+                <div></div>
+                <div>dev</div>
+                <div style="display: flex; ">
+                    <p style="cursor: pointer"
+                        onclick="window.closeWindow(window.installedApps['dev'].windowEl, window.installedApps['dev'].shortcutEl)"
+                        class="content-button">
+                    </p>
+                </div>
+            </div>
+            <div class="window-content" style="display: block; padding: 10px; text-align: center;">
+                <input type="file" id="appInstaller" accept=".zip" style="margin: 10px;" />
+                <label for="appInstaller">Install App</label>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="./script.js" type="module"></script>
+</body>
+
+</html>

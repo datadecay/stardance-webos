@@ -1,0 +1,49 @@
+<div class="sidebar">
+                    <ul>
+                        <li onclick="window.guideApp.openGuide('guide1-content')">Getting Started</li>
+                        <li onclick="window.guideApp.openGuide('guide2-content')">Installing Apps</li>
+                        <li onclick="window.guideApp.openGuide('guide3-content')">Customization</li>
+                        <li onclick="window.guideApp.openGuide('guide4-content')">Packaging Apps</li>
+                    </ul>
+                </div>
+
+                <div class="main-content">
+                    <h1>Guide</h1>
+
+                    <div id="guide1-content">
+                        <p>To open apps click the app's icon on the desktop</p>
+                    </div>
+                    <div id="guide2-content" style="display: none;">
+                        <p>Open the "Dev" app and upload your zipfile. The app will install and you can use it :)</p>
+                    </div>
+                    <div id="guide3-content" style="display: none;">
+                        <p>In Conf app, open personalization settings</p>
+                    </div>
+                    <div id="guide4-content" style="display: none;">
+                        <p>To package apps, create a zip file containing the structure (names are dependent on config.json):</p>
+                        <pre>
+app.zip/
+├── app.png
+├── config.json
+├── app.html
+└── app.js
+                        </pre>
+                        <p>config.json contains the app's configuration. Example:</p>
+                        <pre>
+{
+  "id": "read",
+  "name": "Read :3",
+  "version": "1.0.0",
+  "description": "read stuff?",
+  "icon": "read.png",
+  "html": "read.html",
+  "script": "read.js",
+  "width": "600px",
+  "height": "450px"
+}
+                        </pre>
+                        <p>app.png, app.html, and app.js are kinda self explanatory</p>
+                        <p>Once you have your zip file, open the Dev app and upload it. If your config is correct, it should install and work :3</p>
+                    </div>
+                    </div>
+                </div>
