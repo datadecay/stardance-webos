@@ -1,0 +1,11 @@
+{
+  "id": "term",
+  "name": "XTerm",
+  "version": "1.0.0",
+  "description": "well yes, its a terminal",
+  "icon": "term.png",
+  "html": "term.html",
+  "script": "term.js",
+  "width": "600px",
+  "height": "450px"
+}

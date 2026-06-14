@@ -1,0 +1,71 @@
+<style>
+.game-container {
+  position: relative;
+  width: 350px;
+  height: 300px;
+}
+.game-slot {
+  width: 50px;
+  height: 250px;
+  position: absolute;
+  top: 0px;
+  background: linear-gradient(to bottom, 
+    #ff3232 0px, #ff3232 50px, 
+    #ffff00 50px, #ffff00 100px, 
+    #00ffff 100px, #00ffff 150px, 
+    #00ff00 150px, #00ff00 200px, 
+    #ff00ff 200px, #ff00ff 250px
+  );
+  background-size: 50px 250px;
+  background-repeat: repeat-y;
+}
+#game-slot1 { left: 0px; }
+#game-slot2 { left: 50px; }
+#game-slot3 { left: 100px; }
+#game-slot4 { left: 150px; }
+#game-slot5 { left: 200px; }
+#game-slot6 { left: 250px; }
+#game-slot7 { left: 300px; }
+
+#game-topBlocker {
+  top: 0px;
+  width: 350px;
+  height: 100px;
+  position: absolute;
+  background-color: black;
+  left: 0px;
+  z-index: 10;
+}
+
+.game-blocker {
+  /*display: none;
+*/}
+#game-bottomBlocker {
+  top: 150px;
+  width: 350px;
+  height: 100px;
+  position: absolute;
+  background-color: black;
+  left: 0px;
+  z-index: 10;
+}
+
+#game-autoRoll {
+  position: absolute;
+  top: 260px;
+  left: 0px;
+}
+</style>
+
+<div class="game-container">
+  <div id="game-slot1" class="game-slot"></div>
+  <div id="game-slot2" class="game-slot"></div>
+  <div id="game-slot3" class="game-slot"></div>
+  <div id="game-slot4" class="game-slot"></div>
+  <div id="game-slot5" class="game-slot"></div>
+  <div id="game-slot6" class="game-slot"></div>
+  <div id="game-slot7" class="game-slot"></div>
+  <div id="game-topBlocker" class="game-blocker"></div>
+  <div id="game-bottomBlocker" class="game-blocker"></div>
+  <button id="game-autoRoll">Spin Until Win!</button>
+</div>

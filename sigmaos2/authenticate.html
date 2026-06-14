@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        #auth-container {
+            margin-top: 20px;
+        }
+        #auth-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        a {
+            margin-top: 20px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+    </style>
+        <script src="./auth.js" type="module"></script>
+    </head>
+    <body>
+        <!--<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>-->
+        <h1>Log in with HackClub</h1>
+        <div id="auth-container">
+            <button id="auth-button">Log in with HackClub</button>
+        </div>
+        <a id="no-login">Don't want to log in?</a>
+    </body>
+</html>

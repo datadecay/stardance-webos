@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link href="./styles.css" rel="stylesheet">
+    <script src="./lib/jszip.js"></script>
+</head>
+
+<body>
+    <!--<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>-->
+    <div class="loading-screen">
+        <div class="loading-logo"></div>
+    </div>
+    <div id="topbar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <p>sigmaOS</p>
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Run</a>
+                <div class="dropdown-content" id="runbar">
+                </div>
+            </li>
+        </div>
+        <div>
+            <span class="username">Guest</span>
+            <button id="logout-button">Log out</button>
+        </div>
+        <p id="time">time</p>
+    </div>
+    <div id="desktop">
+        <div id="desktopApps" style="padding-top: 16px; padding-left: 16px;">
+            <div id="welcome-app" onclick="window.handleTap(window.welcomeApp, window.welcomeWindow)"
+                class="app selected">
+                <img src="./apps/hi.png" class="app-icon">
+            </div>
+            <div id="dev-app" onclick="window.handleTap(window.devApp, window.devWindow)" class="app">
+                <img src="./apps/dev.png" class="app-icon">
+            </div>
+        </div>
+        <div class="window" id="welcome" style="top: 50%; left: 50%;">
+            <div class="handle" id="welcomeheader">
+                <div></div>
+                <div>Welcome</div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
+                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
+                        onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
+                </div>
+            </div>
+
+            <div class="window-content" style="display: block; padding: 10px; text-align: center;">
+                <img class="img" src="./base64.png" alt="sigmaOS Logo" style="max-width: 64px; margin-bottom: 10px;">
+                <h1>Welcome to sigmaOS, <span class="username">Guest</span></h1>
+                <p>best name in existance</p>
+            </div>
+        </div>
+        <div class="window" id="dev" style="top: 50%; left: 50%; display: none;">
+            <div class="handle" id="devheader">
+                <div></div>
+                <div>Dev</div>
+                <div style="display: flex; ">
+                    <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
+                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
+                        onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
+                </div>
+            </div>
+            <div class="window-content" style="display: block; padding: 10px; text-align: center;">
+                <input type="file" id="appInstaller" accept=".zip" style="margin: 10px;" />
+                <label for="appInstaller">Install App</label>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="./script.js" type="module"></script>
+    <script src="./desktop.js" type="module"></script>
+
+</body>
+
+</html>

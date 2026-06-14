@@ -1,0 +1,11 @@
+{
+    "apps": [
+        {
+            "id": "read",
+            "name": "Read",
+            "version": "1.0.0",
+            "url": "./appstore/read.zip",
+            "description": "Read NOTHING"
+        }
+    ]
+}
