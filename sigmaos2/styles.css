@@ -245,14 +245,17 @@ body {
     background-color: transparent !important;
     border-color: transparent !important;
     box-shadow: none !important;
+    pointer-events: none;
 }
 
 .window.minimized .handle {
-    border: 2px solid var(--primary)
+    border: 2px solid var(--primary);
+    pointer-events: auto;
 }
 
 .window.minimized .window-content {
     display: none !important;
+    pointer-events: none;
 }
 
 .loading-screen {
