@@ -1,0 +1,11 @@
+{
+  "id": "notes",
+  "name": "Notes",
+  "version": "1.0.0",
+  "description": "A simple notes app",
+  "icon": "notes.png",
+  "html": "notes.html",
+  "script": "notes.js",
+  "width": "600px",
+  "height": "450px"
+}

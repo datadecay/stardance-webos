@@ -54,8 +54,10 @@ export async function initializeDesktop() {
                     await storageLib.saveSetting({ id: "theme-color", value: stateData.themeColor || "" });
                     await storageLib.saveSetting({ id: "theme-color2", value: stateData.themeColor2 || "" });
                     await storageLib.saveSetting({ id: "theme-image", value: stateData.themeImage || "" });
+                    await storageLib.clearAllData();
                     await storageLib.clearApps();
                     await Promise.all((stateData.apps || []).map(app => storageLib.saveApp(app)));
+                    await Promise.all((stateData.kv || []).map(([key, value]) => storageLib.storeData(key, value)));
 
                     if (typeof storageLib.saveApp === 'function' && stateData.windows) {
                         await storageLib.saveApp({ id: "open-apps", windows: stateData.windows });
@@ -77,12 +79,15 @@ export async function initializeDesktop() {
             const currentSecondary = await storageLib.getSetting("theme-color2");
             const currentImage = await storageLib.getSetting("theme-image");
             const loadedApps = await storageLib.getAllApps();
+            const rawKvData = await storageLib.getAllKeyval();
+            const kv = rawKvData ? Object.entries(rawKvData) : [];
 
             const layoutPayload = {
                 themeColor: (currentPrimary && typeof currentPrimary === 'object' ? currentPrimary.value : currentPrimary) || "",
                 themeColor2: (currentSecondary && typeof currentSecondary === 'object' ? currentSecondary.value : currentSecondary) || "",
                 themeImage: (currentImage && typeof currentImage === 'object' ? currentImage.value : currentImage) || "",
-                apps: loadedApps || []
+                apps: loadedApps || [],
+                kv: kv || []
             };
 
             console.log("Uploading roaming profile", layoutPayload);
@@ -148,11 +153,21 @@ export async function initializeDesktop() {
             console.log("Applist update");
             await window.saveCurrentOSLayout();
         });
+        messagingModule.subscribe("keyvalUpdate", async () => {
+            if (!bootComplete) {
+                console.log("Keyval update ignored");
+                return;
+            }
+
+            console.log("Keyval update");
+            await window.saveCurrentOSLayout();
+        });
     }
     window.clearData = async () => {
         if (await popupModule.confirm("Are you sure you want to clear all data? This cannot be undone.")) {
             try {
                 await storageLib.clearApps();
+                await storageLib.clearAllData();
                 await storageLib.saveSetting({ id: "theme-color", value: "" });
                 await storageLib.saveSetting({ id: "theme-color2", value: "" });
                 await storageLib.saveSetting({ id: "theme-image", value: "" });

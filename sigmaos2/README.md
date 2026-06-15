@@ -24,6 +24,7 @@ Currently, you can only login with HackClub.
    - **App Store:**: what it sounds like
  - App Store
    - **Read :3**: Not much of a book
+   - **Notes**: Notes (yes!)
 
 ### Try
 **[Here ya go <3](https://datadecay.github.io/stardance-webos/sigmaos2)**

@@ -1,3 +1,5 @@
+// part ai
+
 const storage = window.storageLib; 
 const storageInstance = storage?.storageLib || storage; 
 const applyTheme = window.apply || (window.theme && window.theme.apply);

@@ -1,3 +1,5 @@
+// This file is part AI
+
 const contextModule = await import('./context.js');
 
 export const storageLib = (() => {
@@ -17,7 +19,7 @@ export const storageLib = (() => {
 
         return new Promise((resolve, reject) => {
             const dbName = `${currentContext}_sigmaOS`;
-            const request = window.indexedDB.open(dbName, 1);
+            const request = window.indexedDB.open(dbName, 2);
 
             request.onerror = (event) => {
                 console.error("IndexedDB error:", event);
@@ -37,6 +39,9 @@ export const storageLib = (() => {
                 }
                 if (!db.objectStoreNames.contains("settings")) {
                     db.createObjectStore("settings", { keyPath: "id" });
+                }
+                if (!db.objectStoreNames.contains("keyval")) {
+                    db.createObjectStore("keyval");
                 }
                 console.log("IndexedDB setup complete");
             };
@@ -121,6 +126,78 @@ export const storageLib = (() => {
                 const req = store.getAll();
                 req.onsuccess = (e) => resolve(e.target.result);
                 req.onerror = (e) => reject(e.target.error);
+            });
+        },
+        async getAllKeyval() {
+            const store = await getStore("keyval", "readonly");
+            return new Promise((resolve, reject) => {
+                const resultDict = {};
+                const req = store.openCursor();
+                req.onsuccess = (e) => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        resultDict[cursor.primaryKey] = cursor.value;
+                        cursor.continue();
+                    } else {
+                        resolve(resultDict);
+                    }
+                };
+                req.onerror = (e) => reject(e.target.error); 
+            });
+        },
+        async storeData(key, value) {
+            const db = await initDB();
+            const transaction = db.transaction(["keyval"], "readwrite");
+            const store = transaction.objectStore("keyval");
+            return new Promise((resolve, reject) => {
+                const request = store.put(value, key);
+                request.onsuccess = () => {
+                    if (window.messagingLib?.publish) {
+                        window.messagingLib.publish("keyvalUpdate", { key, value });
+                    }
+                    resolve();
+                };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        },
+        async getData(key) {
+            const db = await initDB();
+            const transaction = db.transaction(["keyval"], "readonly");
+            const store = transaction.objectStore("keyval");
+            return new Promise((resolve, reject) => {
+                const request = store.get(key);
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        },
+        async deleteData(key) {
+            const db = await initDB();
+            const transaction = db.transaction(["keyval"], "readwrite");
+            const store = transaction.objectStore("keyval");
+            return new Promise((resolve, reject) => {
+                const request = store.delete(key);
+                request.onsuccess = () => {
+                    if (window.messagingLib?.publish) {
+                        window.messagingLib.publish("keyvalUpdate", { key, value: null });
+                    }
+                    resolve();
+                };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        },
+        async clearAllData() {
+            const db = await initDB();
+            const transaction = db.transaction(["keyval"], "readwrite");
+            const store = transaction.objectStore("keyval");
+            return new Promise((resolve, reject) => {
+                const request = store.clear();
+                request.onsuccess = () => {
+                    if (window.messagingLib?.publish) {
+                        window.messagingLib.publish("keyvalUpdate", { key: null, value: null });
+                    }
+                    resolve();
+                };
+                request.onerror = (e) => reject(e.target.error);
             });
         }
     };
