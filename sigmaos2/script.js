@@ -282,9 +282,11 @@ async function instalFromWeb(appUrl, base = false) {
     }
 }
 
-function installBase() {
+async function installBase() {
     const baseApps = ["./apps/guide.zip", "./apps/game.zip", "./apps/conf.zip", "./apps/appstore.zip", "./apps/term.zip"];
-    baseApps.forEach(url => instalFromWeb(url, true));
+    for (const url of baseApps) {
+        await instalFromWeb(url, true);
+    }
 }
 
 function installSavedApps() {
