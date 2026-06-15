@@ -196,4 +196,11 @@ async function loadInfoList() {
             });
         }
     });
+
+    const deleteDataBtn = document.getElementById("delete-data");
+    if (deleteDataBtn) {
+        deleteDataBtn.addEventListener("click", () => {
+            window.clearData();
+        });
+    }
 })();
