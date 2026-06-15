@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
+
+<head>
+
     <style>
         body {
             display: flex;
@@ -13,29 +14,89 @@
             background-color: #000000;
             color: #ffffff;
         }
+
         #auth-container {
             margin-top: 20px;
         }
+
         #auth-button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
         }
+
         a {
             margin-top: 20px;
             color: #ffffff;
             text-decoration: none;
         }
+
+        .tooltip-container {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            border-bottom: 1px dashed #555;
+        }
+
+        .tooltip-container::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            background-color: #333;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .tooltip-container::after {
+            content: "";
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            border-width: 6px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+            z-index: 10;
+
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .tooltip-container:hover::before,
+        .tooltip-container:hover::after,
+        .tooltip-container:focus::before,
+        .tooltip-container:focus::after {
+            opacity: 1;
+        }
     </style>
-        <script src="./auth.js" type="module"></script>
-    </head>
-    <body>
-        <!--<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script src="./auth.js" type="module"></script>
+</head>
+
+<body>
+    <!--<script src="//cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>-->
-        <h1>Log in with HackClub</h1>
-        <div id="auth-container">
-            <button id="auth-button">Log in with HackClub</button>
-        </div>
-        <a id="no-login">Don't want to log in?</a>
-    </body>
+    <h1>Log in with HackClub</h1>
+    <div id="auth-container">
+        <button id="auth-button">Log in with HackClub</button>
+    </div>
+    <p class="tooltip-container"
+        data-tooltip="Sign in to save data across devices and let us call you by first name 2 times :)" tabindex="0">Why
+        sign in?</p>
+    <a id="no-login">Don't want to log in?</a>
+</body>
+
 </html>
