@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 })
             });
 
-            if (!response.ok) throw new Error('Auth failed');
+            const errorText = await response.text();
+    console.error('Error: ' + errorText);
             const data = await response.json();
 
             
