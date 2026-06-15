@@ -41,8 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 })
             });
 
-            const errorText = await response.text();
-    console.error('Error: ' + errorText);
             const data = await response.json();
 
             
