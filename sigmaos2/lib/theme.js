@@ -1,5 +1,5 @@
-import * as storage from "./storage.js";
-import * as messaging from "./messaging.js";
+const storage = await import("./storage.js");
+const messaging = await import("./messaging.js");
 
 export async function apply() {
     const storageLib = storage.storageLib;

@@ -2,10 +2,11 @@
 
 const BACKEND_URL = 'https://slunga.westus2.cloudapp.azure.com:8095';
 
-import * as themeModule from './theme.js';
-import * as storageModule from './storage.js';
-import * as messagingModule from './messaging.js';
-import * as contextModule from './context.js';
+const themeModule = await import("./lib/theme.js");
+const storageModule = await import("./lib/storage.js");
+const messagingModule = await import("./lib/messaging.js");
+const contextModule = await import("./lib/context.js");
+
 
 export async function initializeDesktop() {
     const session = JSON.parse(localStorage.getItem('user_session'));
