@@ -149,4 +149,35 @@ export async function initializeDesktop() {
             await window.saveCurrentOSLayout();
         });
     }
+    window.clearData = async () => {
+        if (confirm("Are you sure you want to delete all your data? This cannot be undone.")) {
+            try {
+                await storageLib.clearApps();
+                await storageLib.saveSetting({ id: "theme-color", value: "" });
+                await storageLib.saveSetting({ id: "theme-color2", value: "" });
+                await storageLib.saveSetting({ id: "theme-image", value: "" });
+                alert("All data cleared.");
+                const response = await fetch(`${BACKEND_URL}/api/save-state`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {}
+                    })
+                });
+                if (response.ok) {
+                    alert("Data cleared from server.");
+                    localStorage.clear();
+                    document.location.reload();
+                } else {
+                    alert("Failed to clear data from server.");
+                }
+            } catch (err) {
+                console.error("Failed to clear data:", err);
+                alert("Failed to clear data.");
+            }
+        }
+    }
 }
