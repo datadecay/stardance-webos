@@ -1,6 +1,6 @@
 // This file is part AI
 
-const BACKEND_URL = 'https://slunga.westus2.cloudapp.azure.com:8095';
+const BACKEND_URL = 'https://sigmaos.datadecay.hackclub.app';
 
 const themeModule = await import("./lib/theme.js");
 const storageModule = await import("./lib/storage.js");
