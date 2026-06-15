@@ -2,7 +2,9 @@
 ## A webOS for the Stardance WebOS1 mission
 [![Deploy 1.x.x](https://github.com/datadecay/stardance-webos/actions/workflows/main.yml/badge.svg)](https://github.com/datadecay/stardance-webos/actions/workflows/main.yml)
 [![Deploy 2.x.x](https://github.com/datadecay/stardance-webos/actions/workflows/2.x.x.yml/badge.svg)](https://github.com/datadecay/stardance-webos/actions/workflows/2.x.x.yml)
-![Demo](demo.gif | width=256)
+
+<img src="demo.gif" width=512 >
+
 ### Try
 ## **[Demo](https://datadecay.github.io/stardance-webos/sigmaos2)**
 ### Main Features
