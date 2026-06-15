@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const authUrl = new URL('https://auth.hackclub.com/oauth/authorize');
             authUrl.searchParams.set('client_id', CLIENT_ID);
             authUrl.searchParams.set('response_type', 'code');
-            authUrl.searchParams.set('scope', 'profile slack_id name verification_status');
+            authUrl.searchParams.set('scope', 'profile name verification_status');
             authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
             authUrl.searchParams.set('code_challenge', challenge);
             authUrl.searchParams.set('code_challenge_method', 'S256');
