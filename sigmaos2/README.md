@@ -1,5 +1,5 @@
 # sigmaOS
-## A webOS for the Stardance WebOS1 mission
+## A webOS for the Stardance webOS2 mission
 [![Deploy 1.x.x](https://github.com/datadecay/stardance-webos/actions/workflows/main.yml/badge.svg)](https://github.com/datadecay/stardance-webos/actions/workflows/main.yml)
 [![Deploy 2.x.x](https://github.com/datadecay/stardance-webos/actions/workflows/2.x.x.yml/badge.svg)](https://github.com/datadecay/stardance-webos/actions/workflows/2.x.x.yml)
 
