@@ -76,3 +76,18 @@ export function popup(message, title = "Alert", options = {}, width = null, heig
     document.body.appendChild(popupEl);
     window.dragElement(popupEl);
 }
+
+export function confirm(message, title = "Confirm") {
+    return new Promise((resolve) => {
+        popup(message, title, {
+            "Yes": () => resolve(true),
+            "No": () => resolve(false)
+        }, "350px", "180px");
+    });
+}
+
+export function alert(message, title = "Alert") {
+    popup(message, title, {
+        "OK": () => {}
+    }, "350px", "180px");
+}
