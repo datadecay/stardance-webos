@@ -4,7 +4,7 @@
 const CLIENT_ID = '119dd61812e3d0a0c5c36112de508783';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-const BACKEND_URL = 'https://slunga.westus2.cloudapp.azure.com:8095'; 
+const BACKEND_URL = 'https://sigmaos.datadecay.hackclub.app'; 
 
 function generateRandomString(length) {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
