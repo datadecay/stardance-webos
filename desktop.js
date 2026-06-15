@@ -15,7 +15,7 @@ export async function initializeDesktop() {
     const usernameDisplay = document.getElementsByClassName('username');
     const logoutButton = document.getElementById('logout-button');
     const noLogin = window.localStorage.getItem('nolog') == "nolog";
-
+    const popupModule = await import("./lib/popup.js");
     if (!noLogin && (!session || !session.user || !session.token)) {
         window.location.href = './authenticate.html';
         return;
@@ -79,8 +79,8 @@ export async function initializeDesktop() {
             const loadedApps = await storageLib.getAllApps();
 
             const layoutPayload = {
-                themeColor: (currentPrimary && typeof currentPrimary === 'object' ? currentPrimary.value : currentPrimary) || "no",
-                themeColor2: (currentSecondary && typeof currentSecondary === 'object' ? currentSecondary.value : currentSecondary) || "no",
+                themeColor: (currentPrimary && typeof currentPrimary === 'object' ? currentPrimary.value : currentPrimary) || "",
+                themeColor2: (currentSecondary && typeof currentSecondary === 'object' ? currentSecondary.value : currentSecondary) || "",
                 themeImage: (currentImage && typeof currentImage === 'object' ? currentImage.value : currentImage) || "",
                 apps: loadedApps || []
             };
@@ -150,13 +150,12 @@ export async function initializeDesktop() {
         });
     }
     window.clearData = async () => {
-        if (confirm("Are you sure you want to delete all your data? This cannot be undone.")) {
+        if (await popupModule.confirm("Are you sure you want to clear all data? This cannot be undone.")) {
             try {
                 await storageLib.clearApps();
                 await storageLib.saveSetting({ id: "theme-color", value: "" });
                 await storageLib.saveSetting({ id: "theme-color2", value: "" });
                 await storageLib.saveSetting({ id: "theme-image", value: "" });
-                alert("All data cleared.");
                 const response = await fetch(`${BACKEND_URL}/api/save-state`, {
                     method: 'POST',
                     headers: {
@@ -168,15 +167,15 @@ export async function initializeDesktop() {
                     })
                 });
                 if (response.ok) {
-                    alert("Data cleared from server.");
+                    await popupModule.alert("Data cleared.");
                     localStorage.clear();
                     document.location.reload();
                 } else {
-                    alert("Failed to clear data from server.");
+                    await popupModule.alert("Failed to clear data from server.");
                 }
             } catch (err) {
                 console.error("Failed to clear data:", err);
-                alert("Failed to clear data.");
+                await popupModule.alert("Failed to clear data.");
             }
         }
     }
