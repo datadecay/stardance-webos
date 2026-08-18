@@ -2,12 +2,16 @@
 
 const storage = window.storageLib; 
 const storageInstance = storage?.storageLib || storage; 
-const applyTheme = window.apply || (window.theme && window.theme.apply);
+const applyTheme = window.theme.apply;
 const messaging = window.messaging;
 const popup = window.popup;
 
+function getFormControls(containerSelector) {
+    return document.querySelectorAll(`${containerSelector} input, ${containerSelector} textarea, ${containerSelector} select`);
+}
+
 async function saveInputsFromContainer(containerSelector) {
-    const inputs = document.querySelectorAll(`${containerSelector} input`);
+    const inputs = getFormControls(containerSelector);
     const savePromises = [];
     
     for (const input of inputs) {
@@ -31,16 +35,14 @@ async function saveInputsFromContainer(containerSelector) {
             value = input.value; 
         }
 
-        if (storageInstance && typeof storageInstance.saveSetting === 'function') {
-            savePromises.push(storageInstance.saveSetting({ id: input.id, value: value }));
-        }
+        savePromises.push(storageInstance.saveSetting({ id: input.id, value: value }));
     }
 
     try {
         await Promise.all(savePromises);
         console.log(`SigmaOS: Settings from ${containerSelector} saved.`);
         
-        if (containerSelector === "#config2-content" && typeof applyTheme === 'function') {
+        if (containerSelector === "#config2-content") {
             applyTheme();
         }
     } catch (error) {
@@ -49,28 +51,50 @@ async function saveInputsFromContainer(containerSelector) {
 }
 
 async function loadSettingsIntoContainer(containerSelector) {
-    const inputs = document.querySelectorAll(`${containerSelector} input`);
+    const inputs = getFormControls(containerSelector);
     
     for (const input of inputs) {
         if (input.type === 'submit' || !input.id) continue;
 
         try {
-            if (storageInstance && typeof storageInstance.getSetting === 'function') {
-                const setting = await storageInstance.getSetting(input.id);
-                if (setting && setting.value !== undefined) {
-                    if (input.type === 'checkbox') {
-                        input.checked = setting.value;
-                    } else if (input.type === 'file') {
-                        //nono
-                    } else {
-                        input.value = setting.value;
-                    }
+            const setting = await storageInstance.getSetting(input.id);
+            if (setting && setting.value !== undefined) {
+                if (input.type === 'checkbox') {
+                    input.checked = setting.value;
+                } else if (input.type === 'file') {
+                    //nono
+                } else {
+                    input.value = setting.value;
                 }
             }
         } catch (error) {
             console.error(`Failed to load setting for ${input.id}:`, error);
         }
     }
+}
+
+async function loadRegisteredThemes() {
+    const select = document.getElementById("registered-theme");
+    if (!select) return;
+
+    const themes = await window.theme.getRegisteredThemes();
+    const selectedTheme = await storageInstance.getSetting("active-theme");
+    const selectedThemeId = selectedTheme?.value ? String(selectedTheme.value) : "";
+
+    select.innerHTML = "";
+
+    const noThemeOption = document.createElement("option");
+    noThemeOption.value = "";
+    noThemeOption.textContent = "None";
+    select.appendChild(noThemeOption);
+
+    themes.forEach((theme) => {
+        const option = document.createElement("option");
+        option.value = theme.id;
+        option.textContent = theme.name || theme.id;
+        if (theme.id === selectedThemeId) option.selected = true;
+        select.appendChild(option);
+    });
 }
 
 const confApp = {
@@ -93,28 +117,21 @@ async uninstallApp(appId) {
         {
             "Yes": async () => {
                 const appInfo = window.installedApps ? window.installedApps[appId] : null;
-                if (appInfo && typeof window.closeWindow === 'function') {
+                if (appInfo) {
                     window.closeWindow(appInfo.windowEl, appInfo.shortcutEl);
                     delete window.installedApps[appId];
                 }
 
-                if (storageInstance && typeof storageInstance.deleteApp === 'function') {
-                    try {
-                        await storageInstance.deleteApp(appId);
-                        console.log(`App ${appId} uninstalled successfully.`);
-                        
-                        document.getElementById(`${appId}-app`)?.remove();
-                        
-                        if (typeof loadAppList === 'function') {
-                            loadAppList(); 
-                        }
-                        
-                        if (messaging && typeof messaging.publish === 'function') {
-                            messaging.publish("applistUpdate", {});
-                        }
-                    } catch (error) {
-                        console.error(`Failed to uninstall app ${appId}:`, error);
-                    }
+                try {
+                    await storageInstance.deleteApp(appId);
+                    console.log(`App ${appId} uninstalled successfully.`);
+                    
+                    document.getElementById(`${appId}-app`)?.remove();
+                    
+                    loadAppList(); 
+                    messaging.publish("applistUpdate", {});
+                } catch (error) {
+                    console.error(`Failed to uninstall app ${appId}:`, error);
                 }
             },
             "No": () => {
@@ -128,8 +145,6 @@ async uninstallApp(appId) {
 window.confApp = confApp; 
 
 function loadAppList() {
-    if (!storageInstance || typeof storageInstance.getAllApps !== 'function') return;
-
     storageInstance.getAllApps().then(apps => {
         const userAppsList = document.getElementById("installed-user-apps-list");
         if (!userAppsList) return;
@@ -175,16 +190,14 @@ async function loadInfoList() {
 (async () => {
     await loadSettingsIntoContainer("#config1-content");
     await loadSettingsIntoContainer("#config2-content");
+    await loadRegisteredThemes();
     loadAppList();
     loadInfoList();
     
-    if (messaging && typeof messaging.subscribe === 'function') {
-        messaging.subscribe("applistUpdate", () => loadAppList());
-    }
+    messaging.subscribe("applistUpdate", () => loadAppList());
+    messaging.subscribe("keyvalUpdate", () => loadRegisteredThemes());
 
-    if (typeof applyTheme === 'function') {
-        applyTheme(); 
-    }
+    applyTheme(); 
 
     const configs = ["#config1-content", "#config2-content"];
     configs.forEach(selector => {
@@ -203,6 +216,70 @@ async function loadInfoList() {
     if (deleteDataBtn) {
         deleteDataBtn.addEventListener("click", () => {
             window.clearData();
+        });
+    }
+
+    const applyRegisteredThemeBtn = document.getElementById("apply-registered-theme");
+    if (applyRegisteredThemeBtn) {
+        applyRegisteredThemeBtn.addEventListener("click", async () => {
+            const select = document.getElementById("registered-theme");
+            if (!select) return;
+
+            await window.theme.setActiveTheme(select.value || "");
+            await applyTheme();
+        });
+    }
+
+    const unregisterThemeBtn = document.getElementById("unregister-theme");
+    if (unregisterThemeBtn) {
+        unregisterThemeBtn.addEventListener("click", async () => {
+            const select = document.getElementById("registered-theme");
+            const selectedThemeId = select?.value || "";
+            if (!selectedThemeId) return;
+
+            const shouldRemove = await window.popup.confirm(`Remove ${selectedThemeId}?`, "Remove Theme");
+
+            if (!shouldRemove) return;
+
+            try {
+                const activeTheme = await storageInstance.getSetting("active-theme");
+                const activeThemeId = activeTheme?.value ? String(activeTheme.value) : "";
+
+                await window.theme.unregisterTheme(selectedThemeId);
+
+                if (activeThemeId === selectedThemeId) {
+                    await window.theme.setActiveTheme("");
+                }
+
+                await loadRegisteredThemes();
+                await applyTheme();
+            } catch (error) {
+                console.error("Failed to unregister theme:", error);
+            }
+        });
+    }
+
+    const registerThemeJsonBtn = document.getElementById("register-theme-json-btn");
+    if (registerThemeJsonBtn) {
+        registerThemeJsonBtn.addEventListener("click", async () => {
+            const fileInput = document.getElementById("register-theme-json");
+            const file = fileInput?.files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const themeDefinition = JSON.parse(text);
+                const themeName = String(themeDefinition?.name || themeDefinition?.id || file.name || "theme");
+                const shouldRegister = await window.popup.confirm(`Do you want to load ${themeName}?`, "Load Theme");
+
+                if (!shouldRegister) return;
+
+                await window.theme.registerTheme(themeDefinition, "manual");
+                await loadRegisteredThemes();
+            } catch (error) {
+                console.error("Failed to load theme JSON:", error);
+                window.popup.alert("Invalid theme JSON file.", "Theme Error");
+            }
         });
     }
 })();
