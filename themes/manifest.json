@@ -1,0 +1,14 @@
+{
+  "themes": [
+    {
+      "id": "modern",
+      "name": "Modern",
+      "url": "./themes/modern.json"
+    },
+    {
+      "id": "hacker",
+      "name": "Hacker",
+      "url": "./themes/hacker.json"
+    }
+  ]
+}

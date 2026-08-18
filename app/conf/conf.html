@@ -30,6 +30,21 @@
             <input type="file" accept="image/*" id="theme-image">
             <label for="theme-image">Wallpaper</label>
             <br>
+            <label for="theme-vars">Override CSS Variables</label>
+            <textarea id="theme-vars" rows="5" placeholder="--primary: #111111;"></textarea>
+            <br>
+            <label for="theme-css">Override CSS Rules</label>
+            <textarea id="theme-css" rows="8" placeholder=".window { border-radius: var(--window-radius); }"></textarea>
+            <br>
+            <label for="registered-theme">Themes</label>
+            <select id="registered-theme"></select>
+            <button type="button" id="apply-registered-theme">Apply Theme</button>
+            <button type="button" id="unregister-theme">Remove Theme</button>
+            <br>
+            <label for="register-theme-json">Load Theme JSON File</label>
+            <input type="file" accept="application/json,.json" id="register-theme-json">
+            <button type="button" id="register-theme-json-btn">Load</button>
+            <br>
             <input type="submit" value="Save">
         </form>
     </div>

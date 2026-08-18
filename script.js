@@ -181,7 +181,55 @@ async function extractAppPackage(file, system = false) {
         jsContent = await jsFile.async("string");
     }
 
-    return { id: config.id, config, iconUrl, htmlContent, jsContent, system: system || false };
+    const themes = await resolveAppThemes(config, zip);
+
+    return { id: config.id, config, iconUrl, htmlContent, jsContent, themes, system: system || false };
+}
+
+async function readJsonFromZip(zip, filePath) {
+    const zipFile = zip.file(filePath);
+    if (!zipFile) {
+        throw new Error(`Missing theme file in app package: ${filePath}`);
+    }
+
+    const text = await zipFile.async("string");
+    return JSON.parse(text);
+}
+
+async function resolveThemeEntry(themeEntry, zip) {
+    if (typeof themeEntry === "string") {
+        return readJsonFromZip(zip, themeEntry);
+    }
+
+    if (!themeEntry || typeof themeEntry !== "object") {
+        return null;
+    }
+
+    if (typeof themeEntry.file === "string" && themeEntry.file.trim() !== "") {
+        const fromFile = await readJsonFromZip(zip, themeEntry.file.trim());
+        return {
+            ...fromFile,
+            ...themeEntry,
+        };
+    }
+
+    return themeEntry;
+}
+
+async function resolveAppThemes(config, zip) {
+    const rawThemes = Array.isArray(config?.themes) ? config.themes : [];
+    const themes = [];
+
+    for (const themeEntry of rawThemes) {
+        try {
+            const resolvedTheme = await resolveThemeEntry(themeEntry, zip);
+            if (resolvedTheme) themes.push(resolvedTheme);
+        } catch (error) {
+            console.error("Failed to resolve app theme entry:", error);
+        }
+    }
+
+    return themes;
 }
 
 function installApp(appPackage, base = false) {
@@ -266,6 +314,83 @@ function installApp(appPackage, base = false) {
     if (!base) {
         window.storageLib.storageLib.saveApp(appPackage);
     }
+
+    registerThemesFromApp(appPackage, appId, appName);
+}
+
+async function registerThemesFromApp(appPackage, appId, appName) {
+    const appThemes = appPackage?.themes;
+    if (!Array.isArray(appThemes) || appThemes.length === 0) return;
+    if (!window.theme || typeof window.theme.registerTheme !== "function") return;
+
+    const registeredThemes = typeof window.theme.getRegisteredThemes === "function"
+        ? await window.theme.getRegisteredThemes()
+        : [];
+    const existingThemeIds = new Set(registeredThemes.map((theme) => String(theme.id)));
+
+    for (const themeDefinition of appThemes) {
+        const themeName = String(themeDefinition?.name || themeDefinition?.id || `${appName} Theme`);
+        const themeId = String(themeDefinition?.id || themeName.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+
+        if (existingThemeIds.has(themeId)) {
+            continue;
+        }
+
+        const shouldRegister = window.popup && typeof window.popup.confirm === "function"
+            ? await window.popup.confirm(`Do you want to register ${themeName}?`, "Register Theme")
+            : window.confirm(`Do you want to register ${themeName}?`);
+
+        if (!shouldRegister) continue;
+
+        try {
+            await window.theme.registerTheme(themeDefinition, appId);
+            existingThemeIds.add(themeId);
+        } catch (error) {
+            console.error(`Failed to register theme ${themeName}:`, error);
+        }
+    }
+}
+
+async function registerThemeFromUrl(themeUrl, sourceAppId = "builtin") {
+    if (!window.theme || typeof window.theme.registerTheme !== "function") return;
+
+    try {
+        const response = await fetch(themeUrl);
+        if (!response.ok) {
+            throw new Error(`Theme fetch failed: ${response.status} ${response.statusText}`);
+        }
+
+        const themeDefinition = await response.json();
+        await window.theme.registerTheme(themeDefinition, sourceAppId);
+    } catch (error) {
+        console.error(`Failed to register theme from ${themeUrl}:`, error);
+    }
+}
+
+async function registerBundledThemes() {
+    try {
+        const manifestResponse = await fetch("./themes/manifest.json");
+        if (!manifestResponse.ok) return;
+
+        const manifest = await manifestResponse.json();
+        const themes = Array.isArray(manifest?.themes) ? manifest.themes : [];
+
+        const existingThemes = typeof window.theme.getRegisteredThemes === "function"
+            ? await window.theme.getRegisteredThemes()
+            : [];
+        const existingIds = new Set(existingThemes.map((theme) => String(theme.id)));
+
+        for (const themeEntry of themes) {
+            if (!themeEntry || typeof themeEntry !== "object") continue;
+            if (!themeEntry.id || !themeEntry.url) continue;
+            if (existingIds.has(String(themeEntry.id))) continue;
+
+            await registerThemeFromUrl(themeEntry.url, "builtin");
+            existingIds.add(String(themeEntry.id));
+        }
+    } catch (error) {
+        console.error("Failed to regiser OS themes:", error);
+    }
 }
 
 async function instalFromWeb(appUrl, base = false) {
@@ -317,6 +442,7 @@ function installSavedApps() {
 async function load() {
     try {
         await window.desktop.initializeDesktop();
+        await registerBundledThemes();
         await installBase();
         await installSavedApps();
 
