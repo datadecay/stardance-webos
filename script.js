@@ -303,11 +303,11 @@ async function load() {
 
 await load();
 
-window.popup.popup("You are using 1.1.2b3, 2.x.x is availible, if you are reviewing the project for webOS1, please stay, otherwise checkout webOS2 :3","Outdated Version", {
+window.popup.popup("You are using 1.1.2b3, 3.x.x is availible, if you are reviewing the project for webOS1, please stay, otherwise checkout webOS2 :3","Outdated Version", {
     
     "Stay": () => {
 
-    },"Go to sigmaOS 2": () => {
-        window.location.href = "https://datadecay.github.io/stardance-webos/sigmaos2/index.html";
+    },"Go to sigmaOS 3": () => {
+        window.location.href = "https://datadecay.github.io/stardance-webos/sigmaos3/index.html";
     }
 })
