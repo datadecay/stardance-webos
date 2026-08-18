@@ -13,6 +13,13 @@
             "version": "1.0.0",
             "url": "./appstore/notes.zip",
             "description": "A simple notes app"
+        },
+        {
+            "id": "themes",
+            "name": "Themes",
+            "version": "1.0.0",
+            "url": "./appstore/themes.zip",
+            "description": "Optional themes"
         }
     ]
 }

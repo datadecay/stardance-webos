@@ -3,7 +3,7 @@ import json
 import glob
 
 apps = ["guide", "game", "conf", "appstore", "term"]
-appstore_apps = ["read", "notes"]
+appstore_apps = ["read", "notes", "themes"]
 
 for app in apps:
     os.system(f"rm -f apps/{app}.zip")

@@ -1,6 +1,7 @@
 window.storageLib = await import("./lib/storage.js");
 window.theme = await import("./lib/theme.js");
 window.messaging = await import("./lib/messaging.js");
+window.messagingLib = window.messaging;
 window.popup = await import("./lib/popup.js");
 window.desktop = await import("./desktop.js");
 window.appRegistry = new (await import("./lib/app-registry.js")).AppRegistry();
@@ -84,8 +85,8 @@ function handleMaximize(w) {
 }
 
 function handleMinimize(w) {
-        w.classList.remove("maximized");
-        w.classList.toggle("minimized");
+    w.classList.remove("maximized");
+    w.classList.toggle("minimized");
 }
 
 
@@ -97,6 +98,50 @@ function handleTap(element, windowEl) {
         element.classList.add("selected");
         openWindow(windowEl);
     }
+}
+
+async function loadIndexThemeCards() {
+    const themeList = document.getElementById("theme-list");
+    if (!themeList) return;
+
+    const themes = await window.theme.getRegisteredThemes();
+    const activeTheme = await window.storageLib.storageLib.getSetting("active-theme");
+    const activeThemeId = activeTheme?.value ? String(activeTheme.value) : "";
+
+    themeList.innerHTML = "";
+
+    const defaultCard = document.createElement("li");
+    defaultCard.textContent = "Classic";
+    defaultCard.style.cssText = "height: 100px; width: 100px; background: #111111; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;";
+    if (!activeThemeId) defaultCard.style.outline = "3px solid var(--secondary)";
+    defaultCard.addEventListener("click", async () => {
+        await window.theme.setActiveTheme("");
+        await loadIndexThemeCards();
+    });
+    themeList.appendChild(defaultCard);
+
+    themes.filter((theme) => theme.id === "modern" || theme.name?.toLowerCase() === "modern").forEach((theme) => {
+        const card = document.createElement("li");
+        const variables = theme.variables || {};
+        const background = variables["--bg-image"] || variables["--primary"] || "#111111";
+        const color = variables["--secondary"] || "white";
+
+        card.textContent = theme.name || theme.id;
+        card.style.cssText = `height: 100px; width: 100px; background: ${background}; color: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 8px;`;
+        if (theme.id === activeThemeId) card.style.outline = "3px solid var(--secondary)";
+        card.addEventListener("click", async () => {
+            await window.theme.setActiveTheme(theme.id);
+            await loadIndexThemeCards();
+        });
+        themeList.appendChild(card);
+    });
+}
+
+function setupIndexThemeCards() {
+    if (!document.getElementById("theme-list")) return;
+
+    window.messaging.subscribe("keyvalUpdate", () => loadIndexThemeCards());
+    loadIndexThemeCards();
 }
 
 const hardcodedApps = ["welcome", "dev"];
@@ -183,7 +228,7 @@ async function extractAppPackage(file, system = false) {
 
     const themes = await resolveAppThemes(config, zip);
 
-    return { id: config.id, config, iconUrl, htmlContent, jsContent, themes, system: system || false };
+    return { id: config.id, config, iconUrl, htmlContent, jsContent, themes, noapp: config.noapp || false, system: system || false };
 }
 
 async function readJsonFromZip(zip, filePath) {
@@ -205,8 +250,9 @@ async function resolveThemeEntry(themeEntry, zip) {
         return null;
     }
 
-    if (typeof themeEntry.file === "string" && themeEntry.file.trim() !== "") {
-        const fromFile = await readJsonFromZip(zip, themeEntry.file.trim());
+    const themeFile = themeEntry.file || themeEntry.url;
+    if (typeof themeFile === "string" && themeFile.trim() !== "") {
+        const fromFile = await readJsonFromZip(zip, themeFile.trim());
         return {
             ...fromFile,
             ...themeEntry,
@@ -233,25 +279,28 @@ async function resolveAppThemes(config, zip) {
 }
 
 function installApp(appPackage, base = false) {
-    const { id, config, iconUrl, htmlContent, jsContent, system } = appPackage;
+    const { id, config, iconUrl, htmlContent, jsContent, noapp, system } = appPackage;
     const appDefinition = registerAppDefinition(config || { id, name: id });
     const appId = appDefinition?.id || id;
     const appName = appDefinition?.name || config?.name || id;
 
     const desktopApps = document.getElementById("desktopApps");
-    const appShortcut = document.createElement("div");
-    appShortcut.id = `${appId}-app`;
-    appShortcut.className = "app";
-    appShortcut.innerHTML = `<img src="${iconUrl}" class="app-icon">`;
-    desktopApps.appendChild(appShortcut);
+    let appShortcut = null;
+    if (!noapp) {
+        appShortcut = document.createElement("div");
+        appShortcut.id = `${appId}-app`;
+        appShortcut.className = "app";
+        appShortcut.innerHTML = `<img src="${iconUrl}" class="app-icon">`;
+        desktopApps.appendChild(appShortcut);
 
-    const runbarEl = document.getElementById("runbar");
-    if (runbarEl) {
-        const runButton = document.createElement("a");
-        runButton.href = "javascript:void(0)";
-        runButton.textContent = appName;
-        runButton.addEventListener('click', () => handleTap(appShortcut, document.getElementById(appId)));
-        runbarEl.appendChild(runButton);
+        const runbarEl = document.getElementById("runbar");
+        if (runbarEl) {
+            const runButton = document.createElement("a");
+            runButton.href = "javascript:void(0)";
+            runButton.textContent = appName;
+            runButton.addEventListener('click', () => handleTap(appShortcut, document.getElementById(appId)));
+            runbarEl.appendChild(runButton);
+        }
     }
 
     const desktop = document.getElementById("desktop");
@@ -300,11 +349,12 @@ function installApp(appPackage, base = false) {
         }
     }
     dragElement(appWindow);
-    dragElement(appShortcut);
-
-    appShortcut.addEventListener('click', () => {
-        handleTap(appShortcut, appWindow);
-    });
+    if (appShortcut) {
+        dragElement(appShortcut);
+        appShortcut.addEventListener('click', () => {
+            handleTap(appShortcut, appWindow);
+        });
+    }
 
     document.getElementById(`${appId}-close-btn`).addEventListener('click', (event) => {
         event.stopPropagation();
@@ -323,22 +373,31 @@ async function registerThemesFromApp(appPackage, appId, appName) {
     if (!Array.isArray(appThemes) || appThemes.length === 0) return;
     if (!window.theme || typeof window.theme.registerTheme !== "function") return;
 
-    const registeredThemes = typeof window.theme.getRegisteredThemes === "function"
-        ? await window.theme.getRegisteredThemes()
-        : [];
+    const registeredThemes = await window.theme.getRegisteredThemes();
+    const decisions = await window.theme.getThemeRegistrationDecisions();
     const existingThemeIds = new Set(registeredThemes.map((theme) => String(theme.id)));
 
     for (const themeDefinition of appThemes) {
         const themeName = String(themeDefinition?.name || themeDefinition?.id || `${appName} Theme`);
         const themeId = String(themeDefinition?.id || themeName.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
 
-        if (existingThemeIds.has(themeId)) {
+        if (decisions[themeId] === false) {
             continue;
         }
 
-        const shouldRegister = window.popup && typeof window.popup.confirm === "function"
-            ? await window.popup.confirm(`Do you want to register ${themeName}?`, "Register Theme")
-            : window.confirm(`Do you want to register ${themeName}?`);
+        if (decisions[themeId] === undefined && existingThemeIds.has(themeId)) {
+            await window.theme.setThemeRegistrationDecision(themeId, true);
+            continue;
+        }
+
+        if (decisions[themeId] === true) {
+            await window.theme.registerTheme(themeDefinition, appId);
+            existingThemeIds.add(themeId);
+            continue;
+        }
+
+        const shouldRegister = await window.popup.confirm(`Do you want to register ${themeName}?`, "Register Theme");
+        await window.theme.setThemeRegistrationDecision(themeId, shouldRegister);
 
         if (!shouldRegister) continue;
 
@@ -442,6 +501,7 @@ function installSavedApps() {
 async function load() {
     try {
         await window.desktop.initializeDesktop();
+        setupIndexThemeCards();
         await registerBundledThemes();
         await installBase();
         await installSavedApps();

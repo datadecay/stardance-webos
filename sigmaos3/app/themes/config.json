@@ -1,0 +1,24 @@
+{
+  "id": "themes",
+  "name": "Cool Themes",
+  "version": "1.0.0",
+  "description": "A collection of cool themes",
+  "icon": "themes.png",
+  "html": "themes.html",
+  "script": "themes.js",
+  "width": "600px",
+  "height": "450px",
+  "noapp": true,
+  "themes": [
+    {
+      "id": "red",
+      "name": "Red",
+      "url": "themes/red.json"
+    },
+    {
+      "id": "hacker",
+      "name": "Hacker",
+      "url": "themes/hacker.json"
+    }
+  ]
+}

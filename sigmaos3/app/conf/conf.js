@@ -74,26 +74,39 @@ async function loadSettingsIntoContainer(containerSelector) {
 }
 
 async function loadRegisteredThemes() {
-    const select = document.getElementById("registered-theme");
-    if (!select) return;
+    const themeList = document.getElementById("registered-theme");
+    if (!themeList) return;
 
     const themes = await window.theme.getRegisteredThemes();
     const selectedTheme = await storageInstance.getSetting("active-theme");
     const selectedThemeId = selectedTheme?.value ? String(selectedTheme.value) : "";
 
-    select.innerHTML = "";
+    themeList.innerHTML = "";
+    themeList.dataset.selectedThemeId = selectedThemeId;
 
-    const noThemeOption = document.createElement("option");
-    noThemeOption.value = "";
-    noThemeOption.textContent = "None";
-    select.appendChild(noThemeOption);
+    const addThemeCard = (theme, id, name, background, color) => {
+        const card = document.createElement("li");
+        card.textContent = name;
+        card.style.cssText = `height: 100px; width: 100px; background: ${background}; color: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 8px;`;
+        if (id === selectedThemeId) card.style.outline = "3px solid var(--primary)";
+        card.addEventListener("click", async () => {
+            await window.theme.setActiveTheme(id);
+            await loadRegisteredThemes();
+        });
+        themeList.appendChild(card);
+    };
+
+    addThemeCard(null, "", "Default", "#111111", "white");
 
     themes.forEach((theme) => {
-        const option = document.createElement("option");
-        option.value = theme.id;
-        option.textContent = theme.name || theme.id;
-        if (theme.id === selectedThemeId) option.selected = true;
-        select.appendChild(option);
+        const variables = theme.variables || {};
+        addThemeCard(
+            theme,
+            theme.id,
+            theme.name || theme.id,
+            variables["--bg-image"] || variables["--secondary"] || "#111111",
+            variables["--primary"] || "white"
+        );
     });
 }
 
@@ -219,22 +232,11 @@ async function loadInfoList() {
         });
     }
 
-    const applyRegisteredThemeBtn = document.getElementById("apply-registered-theme");
-    if (applyRegisteredThemeBtn) {
-        applyRegisteredThemeBtn.addEventListener("click", async () => {
-            const select = document.getElementById("registered-theme");
-            if (!select) return;
-
-            await window.theme.setActiveTheme(select.value || "");
-            await applyTheme();
-        });
-    }
-
     const unregisterThemeBtn = document.getElementById("unregister-theme");
     if (unregisterThemeBtn) {
         unregisterThemeBtn.addEventListener("click", async () => {
-            const select = document.getElementById("registered-theme");
-            const selectedThemeId = select?.value || "";
+            const themeList = document.getElementById("registered-theme");
+            const selectedThemeId = themeList?.dataset.selectedThemeId || "";
             if (!selectedThemeId) return;
 
             const shouldRemove = await window.popup.confirm(`Remove ${selectedThemeId}?`, "Remove Theme");
@@ -270,7 +272,7 @@ async function loadInfoList() {
                 const text = await file.text();
                 const themeDefinition = JSON.parse(text);
                 const themeName = String(themeDefinition?.name || themeDefinition?.id || file.name || "theme");
-                const shouldRegister = await window.popup.confirm(`Do you want to load ${themeName}?`, "Load Theme");
+                const shouldRegister = await window.popup.confirm(`Do you want to register theme "${themeName}"?`, "Yes");
 
                 if (!shouldRegister) return;
 

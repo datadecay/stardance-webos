@@ -1,0 +1,14 @@
+{
+  "id": "hacker",
+  "name": "Hacker",
+  "description": "Funny",
+  "variables": {
+    "--primary": "#0f0",
+    "--secondary": "#000",
+    "--accent-close": "#fb7185",
+    "--window-radius": "0px",
+    "--handle-height": "40px",
+    "--bg-image": "linear-gradient(0deg, #000 0%, #000 100%)"
+  },
+  "css": "body {font-family: monospace;}"
+}
