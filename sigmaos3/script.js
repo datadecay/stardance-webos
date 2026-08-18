@@ -68,29 +68,95 @@ function getTopIndex() {
     return maxIndex++;
 }
 
+function renderWindowBar() {
+    const windowbar = document.getElementById("windowbar");
+    if (!windowbar) return;
+
+    windowbar.innerHTML = "";
+    Object.entries(installedApps).forEach(([appId, appInfo]) => {
+        if (!appInfo.shortcutEl || appInfo.removed || !appInfo.topbarVisible) return;
+
+        const button = document.createElement("button");
+        button.className = "windowbar-app";
+        button.type = "button";
+        button.title = appId;
+
+        const icon = appInfo.shortcutEl.querySelector("img");
+        if (icon) {
+            const iconClone = icon.cloneNode(true);
+            button.appendChild(iconClone);
+        }
+
+        const appWindow = appInfo.windowEl;
+        if (appWindow?.isConnected && appWindow.style.display !== "none") {
+            button.classList.add("active");
+        }
+
+        button.addEventListener("click", async () => {
+            const currentApp = installedApps[appId];
+            if (!currentApp) return;
+
+            if (currentApp.windowEl?.isConnected && currentApp.windowEl.style.display !== "none") {
+                closeWindow(currentApp.windowEl, currentApp.shortcutEl);
+                return;
+            }
+
+            if (currentApp.launch) {
+                await currentApp.launch();
+            } else if (currentApp.windowEl?.isConnected) {
+                openWindow(currentApp.windowEl, currentApp.shortcutEl);
+            }
+        });
+
+        windowbar.appendChild(button);
+    });
+}
+
 function closeWindow(w, app = null) {
     w.style.display = "none";
     if (app) app.classList.remove("selected");
+    renderWindowBar();
+}
+
+function removeWindow(w, app = null) {
+    if (!w) return;
+
+    const appId = w.id;
+    w.remove();
+    app?.classList.remove("selected");
+    if (appId && installedApps[appId]) {
+        installedApps[appId].windowEl = null;
+        installedApps[appId].removed = true;
+    }
+    renderWindowBar();
 }
 
 function openWindow(w, app = null) {
     w.style.display = "flex";
     w.style.zIndex = getTopIndex();
     if (app) app.classList.add("selected");
+    if (w.id && installedApps[w.id]) {
+        installedApps[w.id].topbarVisible = true;
+    }
+    renderWindowBar();
 }
 
 function handleMaximize(w) {
     w.classList.remove("minimized");
     w.classList.toggle("maximized");
+    renderWindowBar();
 }
 
 function handleMinimize(w) {
     w.classList.remove("maximized");
     w.classList.toggle("minimized");
+    renderWindowBar();
 }
 
 
 function handleTap(element, windowEl) {
+    if (!windowEl) return;
+
     if (element.classList.contains("selected")) {
         element.classList.remove("selected");
         closeWindow(windowEl);
@@ -98,6 +164,22 @@ function handleTap(element, windowEl) {
         element.classList.add("selected");
         openWindow(windowEl);
     }
+}
+
+function restoreHardcodedWindow(appId) {
+    const appInfo = installedApps[appId];
+    if (!appInfo?.windowTemplate) return null;
+
+    const template = document.createElement("template");
+    template.innerHTML = appInfo.windowTemplate;
+    const windowEl = template.content.firstElementChild;
+    document.getElementById("desktop").appendChild(windowEl);
+    dragElement(windowEl);
+    appInfo.windowEl = windowEl;
+    appInfo.removed = false;
+    renderWindowBar();
+
+    return windowEl;
 }
 
 async function loadIndexThemeCards() {
@@ -163,16 +245,23 @@ hardcodedApps.forEach(appId => {
     if (windowEl) dragElement(windowEl);
     if (shortcutEl) {
         dragElement(shortcutEl);
-        shortcutEl.addEventListener('click', () => handleTap(shortcutEl, windowEl));
+        shortcutEl.addEventListener('click', () => {
+            const currentWindow = installedApps[appId].windowEl || restoreHardcodedWindow(appId);
+            handleTap(shortcutEl, currentWindow);
+        });
     }
     if (runbarEl) {
         const runButton = document.createElement("a");
         runButton.href = "javascript:void(0)";
+        runButton.dataset.appId = appId;
         runButton.textContent = appId;
-        runButton.addEventListener('click', () => handleTap(shortcutEl, windowEl));
+        runButton.addEventListener('click', () => {
+            const currentWindow = installedApps[appId].windowEl || restoreHardcodedWindow(appId);
+            handleTap(shortcutEl, currentWindow);
+        });
         runbarEl.appendChild(runButton);
     }
-    installedApps[appId] = { windowEl, shortcutEl };
+    installedApps[appId] = { windowEl, shortcutEl, windowTemplate: windowEl?.outerHTML || null, topbarVisible: false };
 
 });
 
@@ -284,27 +373,67 @@ function installApp(appPackage, base = false) {
     const appId = appDefinition?.id || id;
     const appName = appDefinition?.name || config?.name || id;
 
+    if (installedApps[appId]) {
+        return installedApps[appId];
+    }
+
     const desktopApps = document.getElementById("desktopApps");
     let appShortcut = null;
+    let appWindow = null;
+
+    const launchApp = async () => {
+        if (!appWindow || !appWindow.isConnected) {
+            appWindow = await createAppWindow(appPackage, appId, appName);
+            installedApps[appId].windowEl = appWindow;
+            installedApps[appId].removed = false;
+        }
+
+        openWindow(appWindow, appShortcut);
+    };
+
+    const toggleShortcut = async () => {
+        if (appWindow?.isConnected && appWindow.style.display !== "none") {
+            closeWindow(appWindow, appShortcut);
+            return;
+        }
+
+        await launchApp();
+    };
+
     if (!noapp) {
         appShortcut = document.createElement("div");
         appShortcut.id = `${appId}-app`;
         appShortcut.className = "app";
         appShortcut.innerHTML = `<img src="${iconUrl}" class="app-icon">`;
         desktopApps.appendChild(appShortcut);
+        dragElement(appShortcut);
+        appShortcut.addEventListener('click', toggleShortcut);
 
         const runbarEl = document.getElementById("runbar");
         if (runbarEl) {
             const runButton = document.createElement("a");
             runButton.href = "javascript:void(0)";
+            runButton.dataset.appId = appId;
             runButton.textContent = appName;
-            runButton.addEventListener('click', () => handleTap(appShortcut, document.getElementById(appId)));
+            runButton.addEventListener('click', launchApp);
             runbarEl.appendChild(runButton);
         }
     }
 
+    installedApps[appId] = { windowEl: null, shortcutEl: appShortcut, launch: launchApp, removed: false, topbarVisible: false };
+    renderWindowBar();
+    if (!base) {
+        window.storageLib.storageLib.saveApp(appPackage);
+    }
+
+    registerThemesFromApp(appPackage, appId, appName);
+}
+
+async function createAppWindow(appPackage, appId, appName) {
+    const { config, htmlContent, jsContent } = appPackage;
     const desktop = document.getElementById("desktop");
     const appWindow = document.createElement("div");
+
     appWindow.id = appId;
     appWindow.className = "window";
     appWindow.style.cssText = `display: none; top: 50%; left: 50%; width: ${config.width || '50%'}; height: ${config.height || 'auto'};`;
@@ -316,11 +445,14 @@ function installApp(appPackage, base = false) {
                 <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
                         id="${appId}-close-btn">
                     </p>
-                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
-                        onclick="window.handleMaximize(this.closest('.window'))">
+                    <p class="content-button" style="cursor: pointer; background-color: #ff9500;"
+                        id="${appId}-hide-btn">
                     </p>
                     <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
                         onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
                     </p>
             </div>
         </div>
@@ -329,10 +461,11 @@ function installApp(appPackage, base = false) {
         </div>
     `;
     desktop.appendChild(appWindow);
+    dragElement(appWindow);
+
     if (jsContent && jsContent.trim() !== "") {
         try {
             const runtimeScript = document.createElement("script");
-
             runtimeScript.textContent = `
             (function(appId, currentWindow) {
                 try {
@@ -342,30 +475,23 @@ function installApp(appPackage, base = false) {
                 }
             })("${appId}", document.getElementById("${appId}"));
         `;
-
             document.body.appendChild(runtimeScript);
         } catch (scriptError) {
-            console.error(`Installation syntax error in app "${appName}":`, scriptError);
+            console.error(`Runtime error in app "${appName}":`, scriptError);
         }
-    }
-    dragElement(appWindow);
-    if (appShortcut) {
-        dragElement(appShortcut);
-        appShortcut.addEventListener('click', () => {
-            handleTap(appShortcut, appWindow);
-        });
     }
 
     document.getElementById(`${appId}-close-btn`).addEventListener('click', (event) => {
         event.stopPropagation();
-        closeWindow(appWindow, appShortcut);
+        removeWindow(appWindow, installedApps[appId].shortcutEl);
     });
-    installedApps[appId] = { windowEl: appWindow, shortcutEl: appShortcut };
-    if (!base) {
-        window.storageLib.storageLib.saveApp(appPackage);
-    }
 
-    registerThemesFromApp(appPackage, appId, appName);
+    document.getElementById(`${appId}-hide-btn`).addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeWindow(appWindow, installedApps[appId].shortcutEl);
+    });
+
+    return appWindow;
 }
 
 async function registerThemesFromApp(appPackage, appId, appName) {
@@ -518,6 +644,7 @@ async function load() {
 }
 
 window.closeWindow = closeWindow;
+window.removeWindow = removeWindow;
 window.openWindow = openWindow;
 window.handleTap = handleTap;
 window.dragElement = dragElement;
@@ -530,4 +657,4 @@ window.handleMinimize = handleMinimize;
 
 
 
-load();
+load();load();

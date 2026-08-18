@@ -22,6 +22,7 @@
                 </div>
             </li>
         </div>
+        <div id="windowbar" aria-label="Open applications"></div>
         <div>
             <span class="username">Guest</span>
             <button id="logout-button">Log out</button>
@@ -44,13 +45,16 @@
                 <div>Welcome</div>
                 <div style="display: flex; gap: 6px; align-items: center;">
                     <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
-                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
+                        onclick="window.removeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
                     </p>
-                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
-                        onclick="window.handleMaximize(this.closest('.window'))">
+                    <p class="content-button" style="cursor: pointer; background-color: #ff9500;"
+                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
                     </p>
                     <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
                         onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
                     </p>
                 </div>
             </div>
@@ -74,13 +78,16 @@
                 <div>Dev</div>
                 <div style="display: flex; ">
                     <p class="content-button" style="cursor: pointer; background-color: #ff5f56;"
-                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['welcome'].shortcutEl)">
+                        onclick="window.removeWindow(this.closest('.window'), window.installedApps['dev'].shortcutEl)">
                     </p>
-                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
-                        onclick="window.handleMaximize(this.closest('.window'))">
+                    <p class="content-button" style="cursor: pointer; background-color: #ff9500;"
+                        onclick="window.closeWindow(this.closest('.window'), window.installedApps['dev'].shortcutEl)">
                     </p>
                     <p class="content-button" style="cursor: pointer; background-color: #ffbd2e;"
                         onclick="window.handleMinimize(this.closest('.window'))">
+                    </p>
+                    <p class="content-button" style="cursor: pointer; background-color: #27c93f;"
+                        onclick="window.handleMaximize(this.closest('.window'))">
                     </p>
                 </div>
             </div>

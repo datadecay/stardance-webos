@@ -101,6 +101,44 @@ body {
     list-style-type: none;
 }
 
+#windowbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: 45vw;
+    overflow-x: auto;
+}
+
+.windowbar-app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    padding: 4px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.65;
+}
+
+.windowbar-app:hover,
+.windowbar-app.active {
+    background-color: var(--primary-muted);
+    border-color: var(--secondary);
+    opacity: 1;
+}
+
+.windowbar-app img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
 #topbar li a,
 .dropbtn {
     display: inline-block;
