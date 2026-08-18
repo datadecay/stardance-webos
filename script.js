@@ -3,6 +3,7 @@ window.theme = await import("./lib/theme.js");
 window.messaging = await import("./lib/messaging.js");
 window.popup = await import("./lib/popup.js");
 window.desktop = await import("./desktop.js");
+window.appRegistry = new (await import("./lib/app-registry.js")).AppRegistry();
 
 const timeElement = document.getElementById("time");
 
@@ -101,6 +102,14 @@ function handleTap(element, windowEl) {
 const hardcodedApps = ["welcome", "dev"];
 let installedApps = {};
 
+function registerAppDefinition(appDefinition) {
+    if (!appDefinition || !appDefinition.id) {
+        return null;
+    }
+
+    return window.appRegistry.register(appDefinition);
+}
+
 hardcodedApps.forEach(appId => {
     const windowEl = document.getElementById(appId);
     const shortcutEl = document.getElementById(`${appId}-app`);
@@ -146,7 +155,7 @@ async function extractAppPackage(file, system = false) {
         throw new Error("Invalid App Package: Missing config.json");
     }
     const configText = await configFile.async("string");
-    const config = JSON.parse(configText);
+    const config = registerAppDefinition(JSON.parse(configText));
 
     const iconFile = zip.file(config.icon || "icon.png");
     let iconUrl = "./apps/hi.png";
@@ -177,8 +186,9 @@ async function extractAppPackage(file, system = false) {
 
 function installApp(appPackage, base = false) {
     const { id, config, iconUrl, htmlContent, jsContent, system } = appPackage;
-    const appId = id;
-    const appName = config.name;
+    const appDefinition = registerAppDefinition(config || { id, name: id });
+    const appId = appDefinition?.id || id;
+    const appName = appDefinition?.name || config?.name || id;
 
     const desktopApps = document.getElementById("desktopApps");
     const appShortcut = document.createElement("div");
@@ -282,10 +292,17 @@ async function instalFromWeb(appUrl, base = false) {
     }
 }
 
-async function installBase() {
-    const baseApps = ["./apps/guide.zip", "./apps/game.zip", "./apps/conf.zip", "./apps/appstore.zip", "./apps/term.zip"];
-    for (const url of baseApps) {
-        await instalFromWeb(url, true);
+const baseApps = [
+    "./apps/guide.zip",
+    "./apps/game.zip",
+    "./apps/conf.zip",
+    "./apps/appstore.zip",
+    "./apps/term.zip"
+];
+
+async function installBase(appManifest = baseApps) {
+    for (const appUrl of appManifest) {
+        await instalFromWeb(appUrl, true);
     }
 }
 
