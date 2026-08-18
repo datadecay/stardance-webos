@@ -1,0 +1,14 @@
+{
+  "id": "themes.red",
+  "name": "Red",
+  "description": "Very red theme",
+  "variables": {
+    "--primary": "#600",
+    "--secondary": "#f00",
+    "--accent-close": "#f00",
+    "--window-radius": "3px",
+    "--handle-height": "40px",
+    "--bg-image": "linear-gradient(45deg, #100 0%, #500 100%)"
+  },
+  "css": "body {font-family: monospace;}"
+}
