@@ -328,3 +328,12 @@ window.handleMinimize = handleMinimize;
 
 
 load();
+
+window.popup.popup("You are using 2.x.x, 3.x.x is availible, if you are reviewing the project for webOS2, please stay, otherwise checkout webOS3 :3","Outdated Version", {
+    
+    "Stay": () => {
+
+    },"Go to sigmaOS 3": () => {
+        window.location.href = "https://datadecay.github.io/stardance-webos/sigmaos3/index.html";
+    }
+})
