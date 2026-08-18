@@ -1,9 +1,9 @@
-name: Deploy 2.x.x
+name: Deploy 3.x.x
 
 on:
   push:
     branches:
-      - webos2
+      - 3.x.x
 
 permissions:
   contents: write
@@ -15,10 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy 2.x.x on GitHub Pages
+      - name: Deploy 3.x.x on GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: .
           branch: gh-pages
-          target-folder: sigmaos2
+          target-folder: sigmaos3
           clean: false 
