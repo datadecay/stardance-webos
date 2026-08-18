@@ -1,0 +1,18 @@
+{
+    "apps": [
+        {
+            "id": "read",
+            "name": "Read",
+            "version": "1.0.0",
+            "url": "./appstore/read.zip",
+            "description": "Read NOTHING"
+        },
+        {
+            "id": "notes",
+            "name": "Notes",
+            "version": "1.0.0",
+            "url": "./appstore/notes.zip",
+            "description": "A simple notes app"
+        }
+    ]
+}

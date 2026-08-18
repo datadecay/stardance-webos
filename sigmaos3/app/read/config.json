@@ -1,0 +1,11 @@
+{
+  "id": "read",
+  "name": "Read :3",
+  "version": "1.0.0",
+  "description": "read stuff?",
+  "icon": "read.png",
+  "html": "read.html",
+  "script": "read.js",
+  "width": "600px",
+  "height": "450px"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "conf",
+  "name": "Config",
+  "version": "1.0.0",
+  "description": "Configuration settings",
+  "icon": "conf.png",
+  "html": "conf.html",
+  "script": "conf.js",
+  "width": "600px",
+  "height": "450px"
+}

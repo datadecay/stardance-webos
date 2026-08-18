@@ -1,0 +1,63 @@
+#!/bin/bash
+#this one was part AI, i was a bit confused on how to do it. :3
+set -e
+
+if [ ! -f "./lib/info.json" ]; then
+    echo "Error: ./lib/info.json not found!"
+    exit 1
+fi
+if [ "$1" == "build" ]; then
+    node -e "
+        const fs = require('fs');
+        let info = JSON.parse(fs.readFileSync('./lib/info.json', 'utf8'));
+        
+        info.build = (parseInt(info.build) + 1).toString();
+        
+        fs.writeFileSync('./lib/info.json', JSON.stringify(info, null, 4));
+    "
+elif [ "$1" == "patch" ]; then
+    node -e "
+        const fs = require('fs');
+        let info = JSON.parse(fs.readFileSync('./lib/info.json', 'utf8'));
+        
+        let parts = info.version.split('.');
+        parts[2] = (parseInt(parts[2]) + 1).toString();
+        info.version = parts.join('.');
+        
+        info.build = 0;
+        
+        fs.writeFileSync('./lib/info.json', JSON.stringify(info, null, 4));
+    "
+elif [ "$1" == "minor" ]; then
+    node -e "
+        const fs = require('fs');
+        let info = JSON.parse(fs.readFileSync('./lib/info.json', 'utf8'));
+        
+        let parts = info.version.split('.');
+        parts[1] = (parseInt(parts[1]) + 1).toString();
+        parts[2] = '0';
+        info.version = parts.join('.');
+        info.build = '0';
+        
+        fs.writeFileSync('./lib/info.json', JSON.stringify(info, null, 4));
+    "
+elif [ "$1" == "major" ]; then
+    node -e "
+        const fs = require('fs');
+        let info = JSON.parse(fs.readFileSync('./lib/info.json', 'utf8'));
+        
+        let parts = info.version.split('.');
+        parts[0] = (parseInt(parts[0]) + 1).toString();
+        parts[1] = '0';
+        parts[2] = '0';
+        info.version = parts.join('.');
+        info.build = '0';
+        
+        fs.writeFileSync('./lib/info.json', JSON.stringify(info, null, 4));
+    "
+else
+    echo "Usage: $0 [build|patch|minor|major]"
+    exit 1
+fi
+
+echo "Bumped to: $(node -e "const fs = require('fs'); let info = JSON.parse(fs.readFileSync('./lib/info.json', 'utf8')); console.log(info.version + ' (Build ' + info.build + ')');")"

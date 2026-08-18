@@ -1,0 +1,11 @@
+{
+  "id": "guide",
+  "name": "Guide",
+  "version": "1.0.0",
+  "description": "learn to use this webos",
+  "icon": "guide.png",
+  "html": "guide.html",
+  "script": "guide.js",
+  "width": "600px",
+  "height": "450px"
+}

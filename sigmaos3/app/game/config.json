@@ -1,0 +1,11 @@
+{
+  "id": "game",
+  "name": "Game",
+  "version": "1.0.0",
+  "description": "NOT gambling",
+  "icon": "game.png",
+  "html": "game.html",
+  "script": "game.js",
+  "width": "600px",
+  "height": "450px"
+}
